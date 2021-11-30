@@ -1,0 +1,6 @@
+{
+	"minecraftVersions": 
+		"https://launchermeta.mojang.com/mc/game/version_manifest.json",
+	"fabricSupportedVersions": 
+		"https://meta.fabricmc.net/v2/versions/game"
+}
