@@ -3,18 +3,19 @@ plugins {
 }
 
 repositories {
-    mavenCentral() 
+    mavenCentral()
 }
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'org.antlr:ST4:4.3.1'
 }
 
 application {
     mainClass = 'daomephsta.spinneret.Spinneret' 
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform() 
 }

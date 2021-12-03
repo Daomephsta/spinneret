@@ -12,12 +12,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.JsonAdapter;
 
 import daomephsta.spinneret.versioning.VersionExtension.Other;
 import daomephsta.spinneret.versioning.VersionExtension.PreRelease;
 import daomephsta.spinneret.versioning.VersionExtension.ReleaseCandidate;
 import daomephsta.spinneret.versioning.VersionExtension.Snapshot;
 
+@JsonAdapter(MinecraftVersion.Serialiser.class)
 public class MinecraftVersion implements Comparable<MinecraftVersion>
 {
     private static final Pattern
