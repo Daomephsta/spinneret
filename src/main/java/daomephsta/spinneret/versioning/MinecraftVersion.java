@@ -31,7 +31,7 @@ public class MinecraftVersion implements Comparable<MinecraftVersion>
     public final VersionType type;
     public final int major, minor, patch;
     public final VersionExtension extension;
-    private final String raw;
+    public final String raw;
 
     private MinecraftVersion(VersionType type, int major, int minor, int patch, VersionExtension extension, String raw)
     {

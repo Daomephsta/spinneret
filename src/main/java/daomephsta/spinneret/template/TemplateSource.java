@@ -3,6 +3,7 @@ package daomephsta.spinneret.template;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -28,7 +29,7 @@ class TemplateSourceSerialiser implements JsonDeserializer<TemplateSource>
         {
         case "local_directory":
         {
-            Path path = context.deserialize(jsonObj.get("path"), Path.class);
+            Path path = Paths.get(jsonObj.get("path").getAsString());
             yield new DirectoryTemplateSource(path);
         }
         default:

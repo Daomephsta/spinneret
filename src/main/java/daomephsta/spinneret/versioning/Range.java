@@ -7,43 +7,46 @@ import com.google.gson.JsonParseException;
 
 public class Range<T extends Comparable<T>>
 {
+    public final T min, max;
     private final Predicate<T> minBound, maxBound;
     private String raw;
 
-    private Range(Predicate<T> minBound, Predicate<T> maxBound)
+    public Range(T min, T max, Predicate<T> minBound, Predicate<T> maxBound)
     {
+        this.min = min;
+        this.max = max;
         this.minBound = minBound;
         this.maxBound = maxBound;
     }
 
     public interface RangeBuilder<T extends Comparable<T>>
     {
-        public Range<T> createRange(Predicate<T> maxBound);
+        public Range<T> createRange(T max, Predicate<T> maxBoundPredicate);
 
         public default Range<T> open(T max)
         {
-            return createRange(t -> max.compareTo(t) >= 0);
+            return createRange(max, t -> max.compareTo(t) > 0);
         }
 
         public default Range<T> closed(T max)
         {
-            return createRange(t -> max.compareTo(t) > 0);
+            return createRange(max, t -> max.compareTo(t) >= 0);
         }
     }
 
     public static <T extends Comparable<T>> RangeBuilder<T> open(T min)
     {
-        return maxBound -> new Range<>(t -> min.compareTo(t) <= 0, maxBound);
+        return (max, maxBound) -> new Range<>(min, max, t -> min.compareTo(t) < 0, maxBound);
     }
 
     public static <T extends Comparable<T>> RangeBuilder<T> closed(T min)
     {
-        return maxBound -> new Range<>(t -> min.compareTo(t) < 0, maxBound);
+        return (max, maxBound) -> new Range<>(min, max, t -> min.compareTo(t) <= 0, maxBound);
     }
 
     public static <T extends Comparable<T>> Range<T> degenerate(T element)
     {
-        return new Range<>(t -> t == element, t -> t == element);
+        return new Range<>(element, element, t -> t == element, t -> t == element);
     }
 
     public static <T extends Comparable<T>> Range<T> parse(Function<String, T> boundParser, String range)

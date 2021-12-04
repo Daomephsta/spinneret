@@ -31,6 +31,11 @@ public class Template
         return minecraftRange.contains(minecraft);
     }
 
+    public boolean isLater(Template other)
+    {
+        return other.minecraftRange.max.compareTo(minecraftRange.max) > 0;
+    }
+
     public void generate() throws IOException
     {
         source.generate();

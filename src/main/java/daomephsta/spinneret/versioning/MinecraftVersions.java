@@ -60,7 +60,12 @@ public class MinecraftVersions
         return byId.get(version);
     }
 
-    public Iterable<MinecraftVersion> getAll()
+    public MinecraftVersion getLatest()
+    {
+        return sorted.last();
+    }
+
+    public Iterable<MinecraftVersion> getAscending()
     {
         return sorted;
     }
