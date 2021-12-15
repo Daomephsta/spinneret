@@ -89,7 +89,6 @@ public class MinecraftVersions
         var request = HttpRequest.newBuilder(minecraftVersionManifest)
             .setHeader("If-Modified-Since", HTTP_DATE.format(updated))
             .GET().build();
-        updated = Calendar.getInstance(GMT, Locale.ROOT).getTime();
         try
         {
             var response = client.send(request, BodyHandlers.ofInputStream());
@@ -100,13 +99,14 @@ public class MinecraftVersions
                 try (Reader reader = new InputStreamReader(response.body()))
                 {
                     JsonArray versions = GSON.fromJson(reader, JsonObject.class).get("versions").getAsJsonArray();
-                    parseVersionManifest(versions);
+                    byId = parseVersionManifest(versions);
                     sorted = new TreeSet<>(byId.values());
                 }
             }
             case 304 /*NOT MODIFIED*/ -> {/*NO OP*/}
             default -> throw new IllegalStateException("Unexpected status code " + response.statusCode());
             }
+            updated = Calendar.getInstance(GMT, Locale.ROOT).getTime();
         }
         catch (InterruptedException e)
         {
