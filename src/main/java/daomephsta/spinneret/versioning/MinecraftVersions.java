@@ -57,7 +57,10 @@ public class MinecraftVersions
 
     public MinecraftVersion get(String version)
     {
-        return byId.get(version);
+        var minecraftVersion = byId.get(version);
+        if (minecraftVersion == null)
+            throw new IllegalArgumentException("Unknown version " + version);
+        return minecraftVersion;
     }
 
     public MinecraftVersion getLatest()
