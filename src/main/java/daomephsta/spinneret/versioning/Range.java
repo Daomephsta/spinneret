@@ -1,5 +1,6 @@
 package daomephsta.spinneret.versioning;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -11,10 +12,10 @@ public class Range<T extends Comparable<T>>
     private final Predicate<T> minBound, maxBound;
     private String raw;
 
-    public Range(T min, T max, Predicate<T> minBound, Predicate<T> maxBound)
+    private Range(T min, T max, Predicate<T> minBound, Predicate<T> maxBound)
     {
-        this.min = min;
-        this.max = max;
+        this.min = Objects.requireNonNull(min, "null minimum bound");
+        this.max = Objects.requireNonNull(max, "null maximum bound");
         this.minBound = minBound;
         this.maxBound = maxBound;
     }
