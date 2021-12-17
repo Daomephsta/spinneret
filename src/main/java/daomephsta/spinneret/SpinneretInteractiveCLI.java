@@ -113,11 +113,14 @@ public class SpinneretInteractiveCLI
         try (Reader selectorsReader = new InputStreamReader(selectors.openStream()))
         {
             var json = JSON.fromJson(selectorsReader, JsonObject.class);
-            var templateDefaults = JSON.fromJson(json.get("template_defaults"), JsonObject.class);
+            var templateDefaults = json.has("template_defaults")
+                ? JSON.fromJson(json.get("template_defaults"), JsonObject.class)
+                : null;
             for (JsonObject templateJson : JSON.fromJson(json.get("templates"), JsonObject[].class))
             {
-                templates.add(Template.read(withDefaults(templateJson, templateDefaults),
-                    Spinneret.minecraftVersions(), JSON));
+                if (templateDefaults != null)
+                    templateJson = withDefaults(templateJson, templateDefaults);
+                templates.add(Template.read(templateJson, Spinneret.minecraftVersions(), JSON));
             }
         }
         catch (IOException e)
