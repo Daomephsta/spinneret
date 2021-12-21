@@ -11,10 +11,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.JsonAdapter;
 
+import daomephsta.spinneret.SpinneretArguments;
+
 @JsonAdapter(value = TemplateSourceSerialiser.class, nullSafe = false)
 public interface TemplateSource
 {
-    public void generate() throws IOException;
+    public void generate(SpinneretArguments spinneretArgs) throws IOException;
 }
 
 class TemplateSourceSerialiser implements JsonDeserializer<TemplateSource>

@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 
 import daomephsta.spinneret.DeletingFileVisitor;
 import daomephsta.spinneret.Platform;
+import daomephsta.spinneret.SpinneretArguments;
 
 class GitTemplateSource implements TemplateSource
 {
@@ -23,7 +24,7 @@ class GitTemplateSource implements TemplateSource
     }
 
     @Override
-    public void generate() throws IOException
+    public void generate(SpinneretArguments arguments) throws IOException
     {
         Path git = findGit();
         if (git != null)

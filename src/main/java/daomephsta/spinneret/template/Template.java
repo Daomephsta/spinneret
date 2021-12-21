@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.versioning.MinecraftVersion;
 import daomephsta.spinneret.versioning.MinecraftVersions;
 import daomephsta.spinneret.versioning.Range;
@@ -36,9 +37,9 @@ public class Template
         return other.minecraftRange.max.compareTo(minecraftRange.max) > 0;
     }
 
-    public void generate() throws IOException
+    public void generate(SpinneretArguments spinneretArgs) throws IOException
     {
-        source.generate();
+        source.generate(spinneretArgs);
     }
 
     @Override

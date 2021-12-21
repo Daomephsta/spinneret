@@ -15,8 +15,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
+import daomephsta.spinneret.template.JsonFilter;
+import daomephsta.spinneret.template.PascalCaseFilter;
 import daomephsta.spinneret.template.Template;
 import daomephsta.spinneret.versioning.MinecraftVersion;
+import liqp.filters.Filter;
 
 public class SpinneretInteractiveCLI
 {
@@ -37,6 +40,14 @@ public class SpinneretInteractiveCLI
             prompt(input, "Mod ID", spinneretArgs.suggestModId(), spinneretArgs::modId);
             prompt(input, "Folder name", spinneretArgs.suggestFolderName(), spinneretArgs::folderName);
             prompt(input, "Mod version", "0.0.1", spinneretArgs::modVersion);
+
+            Filter.registerFilter(new JsonFilter());
+            Filter.registerFilter(new PascalCaseFilter());
+            template.generate(spinneretArgs);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -107,7 +118,7 @@ public class SpinneretInteractiveCLI
         }
     }
 
-    private static List<Template> readSelectors(URL selectors)
+    public static List<Template> readSelectors(URL selectors)
     {
         List<Template> templates = new ArrayList<>();
         try (Reader selectorsReader = new InputStreamReader(selectors.openStream()))

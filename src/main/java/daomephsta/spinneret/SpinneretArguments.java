@@ -7,25 +7,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import daomephsta.spinneret.versioning.MinecraftVersion;
 
-public class SpinneretArguments
+import daomephsta.spinneret.ModScope.RootPackage;
+import daomephsta.spinneret.versioning.MinecraftVersion;
+import liqp.parser.LiquidSupport;
+
+public class SpinneretArguments implements LiquidSupport
 {
-    private URL template;
-    private MinecraftVersion minecraftVersion;
-    private String modName;
-    private String modId;
-    private String folderName;
-    private String modVersion;
+    static class TemplateScope
+    {
+        public URL url;
+    }
+    private final TemplateScope template = new TemplateScope();
+    private final ModScope mod = new ModScope();
 
     public SpinneretArguments template(String template) throws InvalidArgumentException
     {
-        this.template = Spinneret.configuration().getTemplateByAlias(template);
-        if (this.template == null)
+        this.template.url = Spinneret.configuration().getTemplateByAlias(template);
+        if (this.template.url == null)
         {
             try
             {
-                this.template = new URL(template);
+                this.template.url = new URL(template);
             }
             catch (MalformedURLException e)
             {
@@ -37,32 +40,32 @@ public class SpinneretArguments
 
     public URL template()
     {
-        return template;
+        return template.url;
     }
 
     public SpinneretArguments minecraftVersion(String minecraftVersion) throws InvalidArgumentException
     {
-        this.minecraftVersion = Spinneret.minecraftVersions().get(minecraftVersion);
-        if (this.minecraftVersion == null)
+        this.mod.minecraftVersion = Spinneret.minecraftVersions().get(minecraftVersion);
+        if (this.mod.minecraftVersion == null)
             throw new InvalidArgumentException("Unknown version " + minecraftVersion);
         return this;
     }
 
     public MinecraftVersion minecraftVersion()
     {
-        return minecraftVersion;
+        return mod.minecraftVersion;
     }
 
     public SpinneretArguments modName(String modName)
     {
-        this.modName = modName;
+        this.mod.name = modName;
         return this;
     }
 
     public SpinneretArguments modId(String modId) throws InvalidArgumentException
     {
         handleProblems("Invalid mod ID " + modId, validateModId(modId));
-        this.modId = modId;
+        this.mod.id = modId;
         return this;
     }
 
@@ -94,10 +97,10 @@ public class SpinneretArguments
 
     public String suggestModId()
     {
-        if (modName == null)
+        if (mod.name == null)
             throw new IllegalStateException("Mod name required");
         // Deliberate user locale usage as the string is being normalised anyway
-        String normalised = Normalizer.normalize(modName.toLowerCase(), Normalizer.Form.NFD);
+        String normalised = Normalizer.normalize(mod.name.toLowerCase(), Normalizer.Form.NFD);
         StringBuilder suggestion = new StringBuilder(normalised.length());
         for (int i = 0; i < normalised.length(); i++)
         {
@@ -120,7 +123,7 @@ public class SpinneretArguments
     public SpinneretArguments folderName(String folderName) throws InvalidArgumentException
     {
         handleProblems("Invalid folder name " + folderName, validateFolderName(folderName));
-        this.folderName = folderName;
+        mod.folderName = folderName;
         return this;
     }
 
@@ -145,24 +148,76 @@ public class SpinneretArguments
 
     public String suggestFolderName()
     {
-        if (modName == null)
+        if (mod.name == null)
             throw new IllegalStateException("Mod name required");
-        return modName.replaceAll("[\\\\\\/:*?\\\"<>|\\x00]", "");
+        return mod.name.replaceAll("[\\\\\\/:*?\\\"<>|\\x00]", "");
+    }
+
+    public SpinneretArguments author(String author)
+    {
+        this.mod.authors.add(author);
+        return this;
+    }
+
+    public SpinneretArguments rootPackageName(String packageName) throws InvalidArgumentException
+    {
+        handleProblems("Invalid package name " + packageName, validatePackageName(packageName));
+        this.mod.rootPackage = new RootPackage(packageName);
+        return this;
+    }
+
+    private Collection<String> validatePackageName(String packageName)
+    {
+        Collection<String> problems = new ArrayList<>();
+        if (packageName.length() < 1)
+        {
+            problems.add("Minimum package name length is 1 character");
+            return problems;
+        }
+        boolean isElementStart = true;
+        for (int i = 0; i < packageName.length(); i++)
+        {
+            char c = mod.folderName.charAt(i);
+            if (isElementStart)
+            {
+                if (!Character.isJavaIdentifierStart(c))
+                    problems.add("Invalid start character " + c + " at index " + i);
+            }
+            else if (!Character.isJavaIdentifierPart(i))
+                problems.add("Invalid character " + c + " at index " + i);
+            if (!Character.isLowerCase(c))
+                problems.add("Non-lowercase character " + c + " at index " + i);
+        }
+        return problems;
+    }
+
+    public String suggestRootPackageName()
+    {
+        if (mod.id == null)
+            throw new IllegalStateException("Mod ID required");
+        if (mod.authors.isEmpty())
+            throw new IllegalStateException("Author required");
+        return mod.authors.get(0).toLowerCase() + "." + mod.id;
+    }
+
+    public String folderName()
+    {
+        return mod.folderName;
     }
 
     public SpinneretArguments modVersion(String modVersion)
     {
-        this.modVersion = modVersion;
+        this.mod.version = modVersion;
         return this;
     }
 
-    public Map<String, Object> buildMap()
+    @Override
+    public Map<String, Object> toLiquid()
     {
         return Map.of(
-            "spinneret:mod_id", modId,
-            "spinneret:mod_name", modName,
-            "spinneret:folder_name", folderName,
-            "spinneret:mod_version", modVersion);
+            "template", template,
+            "mod", mod
+        );
     }
 
     private static boolean inRange(char c, char lower, char upper)
