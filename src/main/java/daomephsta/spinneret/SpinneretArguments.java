@@ -6,9 +6,12 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import daomephsta.spinneret.ModScope.RootPackage;
+import daomephsta.spinneret.template.Template;
 import daomephsta.spinneret.versioning.MinecraftVersion;
 import liqp.parser.LiquidSupport;
 
@@ -20,6 +23,7 @@ public class SpinneretArguments implements LiquidSupport
     }
     private final TemplateScope template = new TemplateScope();
     private final ModScope mod = new ModScope();
+    private Template selectedTemplate = null;
 
     public SpinneretArguments template(String template) throws InvalidArgumentException
     {
@@ -38,9 +42,11 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
-    public URL template()
+    public Template template()
     {
-        return template.url;
+        if (selectedTemplate == null)
+            throw new IllegalStateException("SpinneretArguments.selectTemplate() must be called");
+        return selectedTemplate;
     }
 
     public SpinneretArguments minecraftVersion(String minecraftVersion) throws InvalidArgumentException
@@ -48,6 +54,13 @@ public class SpinneretArguments implements LiquidSupport
         this.mod.minecraftVersion = Spinneret.minecraftVersions().get(minecraftVersion);
         if (this.mod.minecraftVersion == null)
             throw new InvalidArgumentException("Unknown version " + minecraftVersion);
+        return this;
+    }
+
+    public SpinneretArguments selectTemplate(
+        BiFunction<MinecraftVersion, List<Template>, Template> defaultFactory)
+    {
+        this.selectedTemplate = Template.select(template.url, mod.minecraftVersion, defaultFactory);
         return this;
     }
 

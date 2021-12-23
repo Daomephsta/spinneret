@@ -2,12 +2,24 @@ package daomephsta.spinneret;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+
+import daomephsta.spinneret.template.JsonFilter;
+import daomephsta.spinneret.template.PascalCaseFilter;
 import daomephsta.spinneret.versioning.MinecraftVersions;
+import liqp.filters.Filter;
 
 public class Spinneret
 {
     private static Config configuration = null;
     private static MinecraftVersions versionCache;
+
+    public static void spin(SpinneretArguments args) throws IOException
+    {
+        Filter.registerFilter(new JsonFilter());
+        Filter.registerFilter(new PascalCaseFilter());
+
+        args.template().generate(args);
+    }
 
     public static Config configuration()
     {
