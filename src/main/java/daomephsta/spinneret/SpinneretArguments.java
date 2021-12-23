@@ -166,7 +166,7 @@ public class SpinneretArguments implements LiquidSupport
         return mod.name.replaceAll("[\\\\\\/:*?\\\"<>|\\x00]", "");
     }
 
-    public SpinneretArguments author(String author)
+    public SpinneretArguments addAuthor(String author)
     {
         this.mod.authors.add(author);
         return this;

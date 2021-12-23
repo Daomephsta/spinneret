@@ -1,5 +1,6 @@
 package daomephsta.spinneret;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ class ModScope implements LiquidSupport
     public String name;
     public String id;
     public String version;
-    public List<String> authors = List.of("lorem", "ipsum");
+    public List<String> authors = new ArrayList<>(4);
     public ModScope.RootPackage rootPackage;
     public String folderName;
 
