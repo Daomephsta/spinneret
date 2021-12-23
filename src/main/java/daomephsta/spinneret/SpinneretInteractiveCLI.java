@@ -23,6 +23,7 @@ public class SpinneretInteractiveCLI
 
             prompt(input, "Mod name", null, spinneretArgs::modName);
             prompt(input, "Mod ID", spinneretArgs.suggestModId(), spinneretArgs::modId);
+            prompt(input, "Package name", spinneretArgs.suggestRootPackageName(), spinneretArgs::rootPackageName);
             prompt(input, "Folder name", spinneretArgs.suggestFolderName(), spinneretArgs::folderName);
             prompt(input, "Mod version", "0.0.1", spinneretArgs::modVersion);
 

@@ -19,6 +19,7 @@ public class IntegrationTests
                 .minecraftVersion(Spinneret.minecraftVersions().getLatest().raw)
                 .modName("Test Mod")
                 .modId(spinneretArgs.suggestModId())
+                .rootPackageName(spinneretArgs.suggestRootPackageName())
                 .folderName(spinneretArgs.suggestFolderName())
                 .modVersion("0.0.1");
             Spinneret.spin(spinneretArgs.selectTemplate(

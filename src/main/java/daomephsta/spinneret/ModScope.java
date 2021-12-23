@@ -14,7 +14,7 @@ class ModScope implements LiquidSupport
     public String id;
     public String version;
     public List<String> authors = List.of("lorem", "ipsum");
-    public ModScope.RootPackage rootPackage = new RootPackage("lorem.ipsum");
+    public ModScope.RootPackage rootPackage;
     public String folderName;
 
     @Override

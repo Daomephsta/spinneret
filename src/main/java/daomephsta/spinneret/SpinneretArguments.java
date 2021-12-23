@@ -190,7 +190,12 @@ public class SpinneretArguments implements LiquidSupport
         boolean isElementStart = true;
         for (int i = 0; i < packageName.length(); i++)
         {
-            char c = mod.folderName.charAt(i);
+            char c = packageName.charAt(i);
+            if (c == '.')
+            {
+                isElementStart = true;
+                continue;
+            }
             if (isElementStart)
             {
                 if (!Character.isJavaIdentifierStart(c))
@@ -198,7 +203,7 @@ public class SpinneretArguments implements LiquidSupport
             }
             else if (!Character.isJavaIdentifierPart(i))
                 problems.add("Invalid character " + c + " at index " + i);
-            if (!Character.isLowerCase(c))
+            if (Character.isAlphabetic(c) && !Character.isLowerCase(c))
                 problems.add("Non-lowercase character " + c + " at index " + i);
         }
         return problems;
