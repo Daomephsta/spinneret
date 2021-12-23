@@ -20,6 +20,7 @@ public class IntegrationTests
                 .modName("Test Mod")
                 .modId(spinneretArgs.suggestModId())
                 .addAuthor("Alice").addAuthor("Bob")
+                .description("A mod for testing Spinneret")
                 .rootPackageName(spinneretArgs.suggestRootPackageName())
                 .folderName(spinneretArgs.suggestFolderName())
                 .modVersion("0.0.1");

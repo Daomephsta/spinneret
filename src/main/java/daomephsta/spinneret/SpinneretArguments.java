@@ -172,6 +172,12 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
+    public SpinneretArguments description(String description)
+    {
+        mod.description = description;
+        return this;
+    }
+
     public SpinneretArguments rootPackageName(String packageName) throws InvalidArgumentException
     {
         handleProblems("Invalid package name " + packageName, validatePackageName(packageName));

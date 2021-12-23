@@ -15,6 +15,7 @@ class ModScope implements LiquidSupport
     public String id;
     public String version;
     public List<String> authors = new ArrayList<>(4);
+    public String description;
     public ModScope.RootPackage rootPackage;
     public String folderName;
 
@@ -27,6 +28,7 @@ class ModScope implements LiquidSupport
             "id", id,
             "version", version,
             "authors", authors,
+            "description", description,
             "rootPackage", rootPackage
         );
     }
