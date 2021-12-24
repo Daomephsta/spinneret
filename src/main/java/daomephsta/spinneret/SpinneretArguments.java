@@ -155,7 +155,14 @@ public class SpinneretArguments implements LiquidSupport
     {
         if (mod.name == null)
             throw new IllegalStateException("Mod name required");
-        return mod.name.replaceAll("[\\\\\\/:*?\\\"<>|\\x00]", "");
+        return normalise(mod.name, (i, ch) ->
+        {
+            if (ch == ' ')
+                return '-';
+            if ("\\/:*?\"<>|\0".indexOf(ch) != -1)
+                return -1;
+            return ch;
+        });
     }
 
     public SpinneretArguments addAuthor(String author)
