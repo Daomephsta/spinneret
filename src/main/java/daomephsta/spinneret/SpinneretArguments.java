@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.IntBinaryOperator;
 
 import daomephsta.spinneret.ModScope.RootPackage;
 import daomephsta.spinneret.template.Template;
@@ -112,25 +114,15 @@ public class SpinneretArguments implements LiquidSupport
     {
         if (mod.name == null)
             throw new IllegalStateException("Mod name required");
-        // Deliberate user locale usage as the string is being normalised anyway
-        String normalised = Normalizer.normalize(mod.name.toLowerCase(), Normalizer.Form.NFD);
-        StringBuilder suggestion = new StringBuilder(normalised.length());
-        for (int i = 0; i < normalised.length(); i++)
+        return normalise(mod.name, (i, ch) ->
         {
-            char c = normalised.charAt(i);
-            if (Character.isWhitespace(c))
-                suggestion.append('_');
-            else if (!inRange(c, 'a', 'z') && !inRange(c, '0', '9') &&
-                c != '-' && c != '_')
-            {
-                // NO OP
-            }
+            if (Character.isWhitespace(ch))
+                return '_';
+            else if (inRange(ch, 'a', 'z') || inRange(ch, '0', '9') || ch == '-' || ch == '_')
+                return ch;
             else
-                suggestion.append(c);
-        }
-        if (suggestion.isEmpty() || !inRange(suggestion.charAt(0), 'a', 'z'))
-            return null;
-        return suggestion.toString();
+                return -1;
+        });
     }
 
     public SpinneretArguments folderName(String folderName) throws InvalidArgumentException
@@ -193,26 +185,32 @@ public class SpinneretArguments implements LiquidSupport
             problems.add("Minimum package name length is 1 character");
             return problems;
         }
-        boolean isElementStart = true;
-        for (int i = 0; i < packageName.length(); i++)
+        int offset = 0;
+        for (var segment : packageName.split("\\."))
         {
-            char c = packageName.charAt(i);
-            if (c == '.')
-            {
-                isElementStart = true;
-                continue;
-            }
-            if (isElementStart)
-            {
-                if (!Character.isJavaIdentifierStart(c))
-                    problems.add("Invalid start character " + c + " at index " + i);
-            }
-            else if (!Character.isJavaIdentifierPart(i))
-                problems.add("Invalid character " + c + " at index " + i);
-            if (Character.isAlphabetic(c) && !Character.isLowerCase(c))
-                problems.add("Non-lowercase character " + c + " at index " + i);
+            validatePackageSegment(segment, offset, problems::add);
+            offset += segment.length();
         }
         return problems;
+    }
+
+    private void validatePackageSegment(String segment, int offset, Consumer<String> problems)
+    {
+        if (segment.isEmpty())
+            problems.accept("Empty segment at index " + offset);
+        for (int i = 0; i < segment.length(); i++)
+        {
+            char c = segment.charAt(i);
+            if (i == 0)
+            {
+                if (!Character.isJavaIdentifierStart(c))
+                    problems.accept("Invalid start character " + c + " at index " + (offset + i));
+            }
+            else if (!Character.isJavaIdentifierPart(c))
+                problems.accept("Invalid character " + c + " at index " + (offset + i));
+            if (Character.isAlphabetic(c) && !Character.isLowerCase(c))
+                problems.accept("Non-lowercase character " + c + " at index " + (offset + i));
+        }
     }
 
     public String suggestRootPackageName()
@@ -221,7 +219,35 @@ public class SpinneretArguments implements LiquidSupport
             throw new IllegalStateException("Mod ID required");
         if (mod.authors.isEmpty())
             throw new IllegalStateException("Author required");
-        return mod.authors.get(0).toLowerCase() + "." + mod.id;
+        String normalisedMainAuthor = normalise(mod.authors.get(0), (i, ch) ->
+        {
+            if (Character.isWhitespace(ch))
+                return '_';
+            else if ((i == 0 && Character.isJavaIdentifierStart(ch)) ||
+                (i != 0 && Character.isJavaIdentifierPart(ch)))
+            {
+                return ch;
+            }
+            else
+                return -1;
+        });
+        if (normalisedMainAuthor == null || normalisedMainAuthor.isEmpty())
+            return null;
+        String normalisedModId = normalise(mod.id, (i, ch) ->
+        {
+            if (ch == '-' || Character.isWhitespace(ch))
+                return '_';
+            else if ((i == 0 && Character.isJavaIdentifierStart(ch)) ||
+                (i != 0 && Character.isJavaIdentifierPart(ch)))
+            {
+                return ch;
+            }
+            else
+                return -1;
+        });
+        if (normalisedModId == null || normalisedModId.isEmpty())
+            return null;
+        return normalisedMainAuthor + "." + normalisedModId;
     }
 
     public String folderName()
@@ -244,7 +270,7 @@ public class SpinneretArguments implements LiquidSupport
         );
     }
 
-    private static boolean inRange(char c, char lower, char upper)
+    private static boolean inRange(int c, int lower, int upper)
     {
         return lower <= c && c <= upper;
     }
@@ -254,6 +280,23 @@ public class SpinneretArguments implements LiquidSupport
     {
         if (!problems.isEmpty())
             throw new InvalidArgumentException(header, problems);
+    }
+
+    private static String normalise(String input, IntBinaryOperator charNormaliser)
+    {
+        // Deliberate user locale usage as the string is being normalised anyway
+        String lowercase = Normalizer.normalize(input.toLowerCase(), Normalizer.Form.NFD);
+        StringBuilder normalised = new StringBuilder(lowercase.length());
+        for (int i = 0; i < lowercase.length(); i++)
+        {
+            char c = lowercase.charAt(i);
+            int normalisedChar = charNormaliser.applyAsInt(i, c);
+            if (normalisedChar != -1)
+                normalised.append((char) normalisedChar);
+        }
+        if (normalised.isEmpty() || !inRange(normalised.charAt(0), 'a', 'z'))
+            return null;
+        return normalised.toString();
     }
 
     public static class InvalidArgumentException extends Exception
