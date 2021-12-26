@@ -3,8 +3,10 @@ package daomephsta.spinneret;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
@@ -70,5 +72,25 @@ public class SuggestionTests
             // Will throw if suggestion is invalid
             args.rootPackageName(suggestion);
         }
+    }
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({
+        "19w13a, 1.14.x",
+        "1.15-pre3, 1.15.x",
+        "1.16-rc1, 1.16.x",
+        "1.16, 1.16.x",
+        "1.17.1, 1.17.x",
+        "21w44a, 1.18.x",
+        "1.18-pre4, 1.18.x",
+        "1.18-rc4, 1.18.x",
+        "1.18, 1.18.x",
+        "1.18.1, 1.18.x"
+    })
+    public void suggestCompatibleMinecraftVersions(String minecraftVersion, String expected)
+        throws InvalidArgumentException
+    {
+        var args = new SpinneretArguments().minecraftVersion(minecraftVersion);
+        Assertions.assertEquals(expected, args.suggestCompatibleMinecraftVersions());
     }
 }

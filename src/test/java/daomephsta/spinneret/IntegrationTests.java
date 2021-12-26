@@ -17,6 +17,7 @@ public class IntegrationTests
             spinneretArgs
                 .template("spinneret-java")
                 .minecraftVersion(Spinneret.minecraftVersions().getLatest().raw)
+                .compatibleMinecraftVersions(spinneretArgs.suggestCompatibleMinecraftVersions())
                 .modName("Test Mod")
                 .modId(spinneretArgs.suggestModId())
                 .addAuthor("Alice").addAuthor("Bob")

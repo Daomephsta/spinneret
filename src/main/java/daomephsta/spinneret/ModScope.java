@@ -11,6 +11,7 @@ import liqp.parser.LiquidSupport;
 class ModScope implements LiquidSupport
 {
     public MinecraftVersion minecraftVersion;
+    public String compatibleMinecraftVersions;
     public String name;
     public String id;
     public String version;
@@ -24,6 +25,7 @@ class ModScope implements LiquidSupport
     {
         return Map.of(
             "minecraftVersion", minecraftVersion.raw,
+            "compatibleMinecraftVersions", compatibleMinecraftVersions,
             "name", name,
             "id", id,
             "version", version,

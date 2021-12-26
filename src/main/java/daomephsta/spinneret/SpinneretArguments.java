@@ -59,6 +59,31 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
+    public SpinneretArguments compatibleMinecraftVersions(String versionRange) throws InvalidArgumentException
+    {
+        var problems = new ArrayList<String>();
+        if (versionRange.equals("*")) // Any range
+        {
+            for (int i = 0; i < versionRange.length(); i++)
+            {
+                char ch = versionRange.charAt(i);
+                if (!Character.isDigit(ch) && ch != '.' && ch != 'x')
+                    problems.add("Character at index " + i + " is not 0-9, ., or x");
+            }
+        }
+        handleProblems("Invalid compatible version range", problems);
+        this.mod.compatibleMinecraftVersions = versionRange;
+        return this;
+    }
+
+    public String suggestCompatibleMinecraftVersions()
+    {
+        if (mod.minecraftVersion == null)
+            throw new IllegalStateException("Minecraft Version required");
+        return mod.minecraftVersion.major + "." +
+            mod.minecraftVersion.minor + ".x";
+    }
+
     public SpinneretArguments selectTemplate(
         BiFunction<MinecraftVersion, List<Template>, Template> defaultFactory)
     {
