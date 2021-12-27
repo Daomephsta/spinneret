@@ -1,14 +1,18 @@
 package daomephsta.spinneret.template;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
@@ -16,80 +20,74 @@ import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.util.Json;
 import daomephsta.spinneret.versioning.MinecraftVersion;
-import daomephsta.spinneret.versioning.MinecraftVersions;
 import daomephsta.spinneret.versioning.Range;
 
 public class Template
 {
-    private static final Gson JSON = new GsonBuilder().setLenient().create();
-    private final Range<MinecraftVersion> minecraftRange;
-    private final TemplateSource source;
-
-    private Template(Range<MinecraftVersion> minecraftRange, TemplateSource source)
+    private static final Json JSON = new Json(new GsonBuilder().setLenient().create());
+    public record Variant(
+        Range<MinecraftVersion> minecraftRange,
+        TemplateSource source,
+        Set<Path> exclude)
     {
-        this.minecraftRange = minecraftRange;
-        this.source = source;
-    }
-
-    public static Template read(JsonObject json, MinecraftVersions mcVersions, Gson gson)
-    {
-        Range<MinecraftVersion> minecraftRange = Range.parse(mcVersions::get, json.get("minecraft").getAsString());
-        return new Template(minecraftRange, gson.fromJson(json.get("source"), TemplateSource.class));
-    }
-
-    public boolean matches(MinecraftVersion minecraft)
-    {
-        return minecraftRange.contains(minecraft);
-    }
-
-    public boolean isLater(Template other)
-    {
-        return other.minecraftRange.max.compareTo(minecraftRange.max) > 0;
-    }
-
-    public void generate(SpinneretArguments spinneretArgs) throws IOException
-    {
-        source.generate(spinneretArgs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format("Template(minecraftRange=%s, %s)", minecraftRange, source);
-    }
-
-    public static Template select(URL templateUrl, MinecraftVersion minecraftVersion,
-        BiFunction<MinecraftVersion, List<Template>, Template> defaultFactory)
-    {
-        var templates = Template.readSelectors(templateUrl);
-        for (var template : templates)
+        private boolean matches(MinecraftVersion minecraft)
         {
-            if (template.matches(minecraftVersion))
-                return template;
+            return minecraftRange.contains(minecraft);
         }
-        return defaultFactory.apply(minecraftVersion, templates);
+
+        public boolean isLater(Variant other)
+        {
+            return other.minecraftRange.max.compareTo(minecraftRange.max) > 0;
+        }
+
+        public void generate(SpinneretArguments spinneretArgs) throws IOException
+        {
+            source.generate(spinneretArgs);
+        }
     }
 
-    private static List<Template> readSelectors(URL selectors)
+    public static Variant select(URL templateUrl, MinecraftVersion minecraftVersion,
+        BiFunction<MinecraftVersion, List<Variant>, Variant> defaultFactory)
     {
-        List<Template> templates = new ArrayList<>();
+        List<Variant> variants = Template.readVariants(templateUrl);
+        for (var variant : variants)
+        {
+            if (variant.matches(minecraftVersion))
+                return variant;
+        }
+        return defaultFactory.apply(minecraftVersion, variants);
+    }
+
+    private static List<Variant> readVariants(URL selectors)
+    {
         try (Reader selectorsReader = new InputStreamReader(selectors.openStream()))
         {
-            var json = JSON.fromJson(selectorsReader, JsonObject.class);
-            var templateDefaults = json.has("template_defaults")
-                ? JSON.fromJson(json.get("template_defaults"), JsonObject.class)
+            var json = JSON.readObject(selectorsReader);
+            var templateDefaults = json.has("variant_defaults")
+                ? Json.getAsObject(json, "variant_defaults")
                 : null;
-            for (JsonObject templateJson : JSON.fromJson(json.get("templates"), JsonObject[].class))
-            {
-                if (templateDefaults != null)
-                    templateJson = Json.withDefaults(templateJson, templateDefaults);
-                templates.add(read(templateJson, Spinneret.minecraftVersions(), JSON));
-            }
+            return Json.streamAsObjects(json, "variants")
+                .map(templateJson ->
+                {
+                    if (templateDefaults != null)
+                        templateJson = Json.withDefaults(templateJson, templateDefaults);
+                    return readVariant(templateJson);
+                })
+                .collect(toList());
         }
         catch (IOException e)
         {
             throw new RuntimeException(e);
         }
-        return templates;
+    }
+
+    private static Variant readVariant(JsonObject json)
+    {
+        var minecraftRange = Range.parse(Spinneret.minecraftVersions()::get,
+            Json.getAsString(json, "minecraft"));
+        return new Variant(minecraftRange,
+            JSON.getAs(json, "source", TemplateSource.class),
+            JSON.streamAs(json, "exclude", String.class)
+                .map(Paths::get).collect(toSet()));
     }
 }

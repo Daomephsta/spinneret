@@ -25,7 +25,7 @@ public class SpinneretArguments implements LiquidSupport
     }
     private final TemplateScope template = new TemplateScope();
     private final ModScope mod = new ModScope();
-    private Template selectedTemplate = null;
+    private Template.Variant selectedTemplateVariant = null;
 
     public SpinneretArguments template(String template) throws InvalidArgumentException
     {
@@ -44,11 +44,14 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
-    public Template template()
+    public Template.Variant template()
     {
-        if (selectedTemplate == null)
-            throw new IllegalStateException("SpinneretArguments.selectTemplate() must be called");
-        return selectedTemplate;
+        if (selectedTemplateVariant == null)
+        {
+            throw new IllegalStateException(
+                "SpinneretArguments.selectTemplateVariant() must be called");
+        }
+        return selectedTemplateVariant;
     }
 
     public SpinneretArguments minecraftVersion(String minecraftVersion) throws InvalidArgumentException
@@ -84,10 +87,10 @@ public class SpinneretArguments implements LiquidSupport
             mod.minecraftVersion.minor + ".x";
     }
 
-    public SpinneretArguments selectTemplate(
-        BiFunction<MinecraftVersion, List<Template>, Template> defaultFactory)
+    public SpinneretArguments selectTemplateVariant(
+        BiFunction<MinecraftVersion, List<Template.Variant>, Template.Variant> defaultFactory)
     {
-        this.selectedTemplate = Template.select(template.url, mod.minecraftVersion, defaultFactory);
+        this.selectedTemplateVariant = Template.select(template.url, mod.minecraftVersion, defaultFactory);
         return this;
     }
 

@@ -25,7 +25,7 @@ public class IntegrationTests
                 .rootPackageName(spinneretArgs.suggestRootPackageName())
                 .folderName(spinneretArgs.suggestFolderName())
                 .modVersion("0.0.1");
-            Spinneret.spin(spinneretArgs.selectTemplate(
+            Spinneret.spin(spinneretArgs.selectTemplateVariant(
                 (mcVersion, templates) -> {throw new IllegalStateException("No matching template");}));
         }
         catch (IOException | InvalidArgumentException e)

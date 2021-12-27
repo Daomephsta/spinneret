@@ -18,8 +18,8 @@ public class SpinneretInteractiveCLI
             prompt(input, "Template", "spinneret-java", spinneretArgs::template);
             prompt(input, "Minecraft version", Spinneret.minecraftVersions().getLatest().raw,
                 spinneretArgs::minecraftVersion);
-            spinneretArgs.selectTemplate(
-                (mcVersion, templates) -> noMatchingTemplate(input, mcVersion, templates));
+            spinneretArgs.selectTemplateVariant(
+                (mcVersion, templates) -> noMatchingTemplateVariant(input, mcVersion, templates));
 
             prompt(input, "Mod name", null, spinneretArgs::modName);
             prompt(input, "Mod ID", spinneretArgs.suggestModId(), spinneretArgs::modId);
@@ -40,21 +40,21 @@ public class SpinneretInteractiveCLI
         }
     }
 
-    private static Template noMatchingTemplate(Scanner input,
-        MinecraftVersion minecraftVersion,
-        List<Template> templates)
+    private static Template.Variant noMatchingTemplateVariant(
+        Scanner input, MinecraftVersion minecraftVersion, List<Template.Variant> variants)
     {
-        System.out.printf("No template for %s. Attempt to use latest template? (y/n) ", minecraftVersion);
+        System.out.printf("No template for %s. Attempt to use latest template? (y/n) ",
+            minecraftVersion);
         String response = input.nextLine().toLowerCase();
         if (response.startsWith("y"))
-            return templates.stream().reduce((a, b) -> a.isLater(b) ? a : b).get();
+            return variants.stream().reduce((a, b) -> a.isLater(b) ? a : b).get();
         else if (response.startsWith("n"))
         {
             System.out.println("Template required, aborting");
             System.exit(0);
         }
         else
-            return noMatchingTemplate(input, minecraftVersion, templates);
+            return noMatchingTemplateVariant(input, minecraftVersion, variants);
         throw new IllegalStateException("Unreachable");
     }
 
@@ -63,7 +63,8 @@ public class SpinneretInteractiveCLI
         public void consume(String argument) throws InvalidArgumentException;
     }
 
-    private static void prompt(Scanner input, String prompt, String defaultValue, ArgumentConsumer consumer)
+    private static void prompt(
+        Scanner input, String prompt, String defaultValue, ArgumentConsumer consumer)
     {
         try
         {

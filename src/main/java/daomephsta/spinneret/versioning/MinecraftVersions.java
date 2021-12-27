@@ -25,17 +25,18 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import daomephsta.spinneret.util.Json;
+
 public class MinecraftVersions
 {
-    private static final Gson GSON = new GsonBuilder()
+    private static final Json JSON = new Json(new GsonBuilder()
         .registerTypeAdapter(MinecraftVersion.class, new MinecraftVersion.Serialiser())
-        .create();
+        .create());
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
     private static final DateFormat HTTP_DATE;
     static
@@ -101,7 +102,7 @@ public class MinecraftVersions
             {
                 try (Reader reader = new InputStreamReader(response.body()))
                 {
-                    JsonArray versions = GSON.fromJson(reader, JsonObject.class).get("versions").getAsJsonArray();
+                    JsonArray versions = Json.getAsArray(JSON.readObject(reader), "versions");
                     byId = parseVersionManifest(versions);
                     sorted = new TreeSet<>(byId.values());
                 }
@@ -123,9 +124,10 @@ public class MinecraftVersions
     {
         Map<String, MinecraftVersion> newVersionsById = new HashMap<>(versions.size());
         var latestVersion = versions.get(0).getAsJsonObject();
-        try (Reader reader = new InputStreamReader(new URL(latestVersion.get("url").getAsString()).openStream()))
+        try (Reader reader = new InputStreamReader(
+            new URL(latestVersion.get("url").getAsString()).openStream()))
         {
-            String assets = GSON.fromJson(reader, JsonObject.class).get("assets").getAsString();
+            String assets = Json.getAsString(JSON.readObject(reader), "assets");
             lastRelease = MinecraftVersion.parse(assets, lastRelease);
         }
         catch (IOException e)
@@ -137,7 +139,9 @@ public class MinecraftVersions
             var versionJson = versionElement.getAsJsonObject();
             var id = versionJson.get("id").getAsString();
             MinecraftVersion existing = byId.get(id);
-            MinecraftVersion version = existing != null ? existing : MinecraftVersion.parse(id, lastRelease);
+            MinecraftVersion version = existing != null
+                ? existing
+                : MinecraftVersion.parse(id, lastRelease);
             if (version.extension == VersionExtension.NONE)
                 lastRelease = version;
             newVersionsById.put(id, version);
@@ -149,11 +153,11 @@ public class MinecraftVersions
     {
         try (Reader reader = Files.newBufferedReader(cache))
         {
-            var root = GSON.fromJson(reader, JsonObject.class);
+            var root = JSON.readObject(reader);
             Date updated;
             try
             {
-                updated = HTTP_DATE.parse(root.get("updated").getAsString());
+                updated = HTTP_DATE.parse(Json.getAsString(root, "updated"));
             }
             catch (ParseException e)
             {
@@ -165,7 +169,7 @@ public class MinecraftVersions
             MinecraftVersions mcVersions = new MinecraftVersions(updated);
             for (Entry<String, JsonElement> member : versions.entrySet())
             {
-                var version = GSON.fromJson(member.getValue(), MinecraftVersion.class);
+                var version = JSON.as(member.getValue(), MinecraftVersion.class);
                 mcVersions.byId.put(member.getKey(), version);
             }
             mcVersions.sorted = new TreeSet<>(mcVersions.byId.values());
@@ -178,11 +182,11 @@ public class MinecraftVersions
         cache = cache.toAbsolutePath();
         JsonObject root = new JsonObject();
         root.addProperty("updated", HTTP_DATE.format(Calendar.getInstance().getTime()));
-        root.add("versions", GSON.toJsonTree(byId));
+        root.add("versions", JSON.writeElement(byId));
         Files.createDirectories(cache.getParent());
         try (Writer writer = Files.newBufferedWriter(cache))
         {
-            GSON.toJson(root, writer);
+            JSON.writeElement(root, writer);
         }
     }
 }
