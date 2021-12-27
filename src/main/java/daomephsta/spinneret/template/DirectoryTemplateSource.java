@@ -11,36 +11,43 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Set;
 
 import daomephsta.spinneret.SpinneretArguments;
 import liqp.RenderSettings;
 
 public class DirectoryTemplateSource implements TemplateSource
 {
-    private final Path path;
+    private final Path sourceDirectory;
+    private final Set<Path> exclude;
 
-    public DirectoryTemplateSource(Path path)
+    public DirectoryTemplateSource(Path path, Set<Path> exclude)
     {
-        this.path = path;
+        this.sourceDirectory = path;
+        this.exclude = exclude;
     }
 
     @Override
     public void generate(SpinneretArguments spinneretArgs) throws IOException
     {
         Path destinationFolder = Paths.get(spinneretArgs.folderName());
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>()
+        Files.walkFileTree(sourceDirectory, new SimpleFileVisitor<Path>()
         {
             @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException
             {
-                if (dir.endsWith(".git"))
+                if (isExcluded(dir))
                     return FileVisitResult.SKIP_SUBTREE;
                 return super.preVisitDirectory(dir, attrs);
             }
 
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes)
+                throws IOException
             {
+                if (isExcluded(file))
+                    return FileVisitResult.SKIP_SUBTREE;
                 var renderSettings = new RenderSettings.Builder().withStrictVariables(true).build();
                 // Template substitution
                 Path destination = Paths.get(
@@ -48,7 +55,7 @@ public class DirectoryTemplateSource implements TemplateSource
                         .withRenderSettings(renderSettings)
                         .render(spinneretArgs));
                 // Make relative to destinationFolder
-                destination = destinationFolder.resolve(path.relativize(destination));
+                destination = destinationFolder.resolve(sourceDirectory.relativize(destination));
                 String fileName = destination.getFileName().toString();
                 InputStream content;
                 if (fileName.endsWith(".liquid"))
@@ -74,5 +81,16 @@ public class DirectoryTemplateSource implements TemplateSource
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    private boolean isExcluded(Path dir)
+    {
+        Path relative = sourceDirectory.relativize(dir);
+        for (Path excluded : exclude)
+        {
+            if (relative.startsWith(excluded))
+                return true;
+        }
+        return false;
     }
 }

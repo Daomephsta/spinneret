@@ -1,16 +1,12 @@
 package daomephsta.spinneret.template;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 import com.google.gson.GsonBuilder;
@@ -25,10 +21,7 @@ import daomephsta.spinneret.versioning.Range;
 public class Template
 {
     private static final Json JSON = new Json(new GsonBuilder().setLenient().create());
-    public record Variant(
-        Range<MinecraftVersion> minecraftRange,
-        TemplateSource source,
-        Set<Path> exclude)
+    public record Variant(Range<MinecraftVersion> minecraftRange, TemplateSource source)
     {
         private boolean matches(MinecraftVersion minecraft)
         {
@@ -86,8 +79,6 @@ public class Template
         var minecraftRange = Range.parse(Spinneret.minecraftVersions()::get,
             Json.getAsString(json, "minecraft"));
         return new Variant(minecraftRange,
-            JSON.getAs(json, "source", TemplateSource.class),
-            JSON.streamAs(json, "exclude", String.class)
-                .map(Paths::get).collect(toSet()));
+            JSON.getAs(json, "source", TemplateSource.class));
     }
 }
