@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntBinaryOperator;
-
 import daomephsta.spinneret.ModScope.RootPackage;
 import daomephsta.spinneret.template.Template;
 import daomephsta.spinneret.versioning.MinecraftVersion;
@@ -38,10 +37,16 @@ public class SpinneretArguments implements LiquidSupport
             }
             catch (MalformedURLException e)
             {
-                throw new InvalidArgumentException(e);
+                handleProblems("Invalid URL or incorrect template alias/name",
+                    Collections.singletonList(e.getLocalizedMessage()));
             }
         }
         return this;
+    }
+
+    public URL templateUrl()
+    {
+        return this.template.url;
     }
 
     public Template.Variant template()
@@ -59,6 +64,12 @@ public class SpinneretArguments implements LiquidSupport
         this.mod.minecraftVersion = Spinneret.minecraftVersions().get(minecraftVersion);
         if (this.mod.minecraftVersion == null)
             throw new InvalidArgumentException("Unknown version " + minecraftVersion);
+        return this;
+    }
+
+    public SpinneretArguments minecraftVersion(MinecraftVersion minecraftVersion)
+    {
+        this.mod.minecraftVersion = minecraftVersion;
         return this;
     }
 
@@ -310,8 +321,7 @@ public class SpinneretArguments implements LiquidSupport
         return lower <= c && c <= upper;
     }
 
-    private void handleProblems(String header, Collection<String> problems)
-        throws InvalidArgumentException
+    private void handleProblems(String header, Collection<String> problems) throws InvalidArgumentException
     {
         if (!problems.isEmpty())
             throw new InvalidArgumentException(header, problems);

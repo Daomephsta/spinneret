@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedSet;
+import java.util.NavigableSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -47,7 +47,7 @@ public class MinecraftVersions
     }
     private Date updated;
     private Map<String, MinecraftVersion> byId;
-    private SortedSet<MinecraftVersion> sorted;
+    private NavigableSet<MinecraftVersion> sorted;
 
     private MinecraftVersions(Date updated)
     {
@@ -72,6 +72,11 @@ public class MinecraftVersions
     public Iterable<MinecraftVersion> getAscending()
     {
         return sorted;
+    }
+
+    public Iterable<MinecraftVersion> getDescending()
+    {
+        return sorted.descendingSet();
     }
 
     public static MinecraftVersions load(Path cache, URI versionManifest) throws IOException
