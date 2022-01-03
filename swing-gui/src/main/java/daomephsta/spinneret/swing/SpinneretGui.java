@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -138,7 +139,18 @@ public class SpinneretGui extends JFrame
             spinneretArgs.minecraftVersion((MinecraftVersion) minecraftVersion.getSelectedItem());
             spinneretArgs.selectTemplateVariant((version, templateVariants) ->
             {
-                return null;
+                int result = JOptionPane.showConfirmDialog(this,
+                    "No template variant for " + version.raw + ". Attempt to use the latest template?",
+                    "No matching template variant", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.NO_OPTION)
+                {
+                    System.exit(0);
+                    throw new IllegalStateException("Unreachable");
+                }
+                else if (result == JOptionPane.YES_OPTION)
+                    return templateVariants.stream().reduce((a, b) -> a.isLater(b) ? a : b).get();
+                else
+                    throw new IllegalStateException("Unexpected result " + result);
             });
         }
     }
