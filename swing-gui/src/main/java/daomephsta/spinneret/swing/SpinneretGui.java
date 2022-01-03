@@ -1,10 +1,15 @@
 package daomephsta.spinneret.swing;
 
+import static java.util.stream.Collectors.toList;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.net.URL;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,6 +38,13 @@ public class SpinneretGui extends JFrame
     public SpinneretGui()
     {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setIconImages(Stream.of("16", "32", "48", "256")
+            .map(size ->
+            {
+                URL iconResource = getClass().getResource("/icon-" + size + ".png");
+                return Toolkit.getDefaultToolkit().createImage(iconResource);
+            })
+            .collect(toList()));
 
         var buttons = new JPanel();
         buttons.add(prev, BorderLayout.WEST);
