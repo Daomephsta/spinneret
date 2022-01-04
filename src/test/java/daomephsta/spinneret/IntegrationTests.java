@@ -1,6 +1,7 @@
 package daomephsta.spinneret;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,17 +14,22 @@ public class IntegrationTests
     {
         try
         {
-            SpinneretArguments spinneretArgs = new SpinneretArguments();
-            spinneretArgs
+            String minecraftVersion = Spinneret.minecraftVersions().getLatest().raw;
+            String modName = "Test Mod";
+            String modId = ArgumentSuggestions.modId(modName);
+            List<String> authors = List.of("Alice", "Bob");
+            SpinneretArguments spinneretArgs = new SpinneretArguments()
                 .template("spinneret-java")
-                .minecraftVersion(Spinneret.minecraftVersions().getLatest().raw)
-                .compatibleMinecraftVersions(spinneretArgs.suggestCompatibleMinecraftVersions())
-                .modName("Test Mod")
-                .modId(spinneretArgs.suggestModId())
-                .addAuthor("Alice").addAuthor("Bob")
+                .minecraftVersion(minecraftVersion)
+                .compatibleMinecraftVersions(minecraftVersion)
+                .modName(modName)
+                .modId(modId);
+            for (String author : authors)
+                spinneretArgs.addAuthor(author);
+            spinneretArgs
                 .description("A mod for testing Spinneret")
-                .rootPackageName(spinneretArgs.suggestRootPackageName())
-                .folderName(spinneretArgs.suggestFolderName())
+                .rootPackageName(ArgumentSuggestions.rootPackageName(modId, authors))
+                .folderName(ArgumentSuggestions.folderName(modName))
                 .modVersion("0.0.1");
             Spinneret.spin(spinneretArgs.selectTemplateVariant(
                 (mcVersion, templates) -> {throw new IllegalStateException("No matching template");}));

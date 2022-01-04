@@ -23,10 +23,10 @@ public class SuggestionTests
     @MethodSource("modNames")
     public void suggestModId(String modName) throws InvalidArgumentException
     {
-        var args = new SpinneretArguments().modName(modName);
-        String suggestion = args.suggestModId();
+        String suggestion = ArgumentSuggestions.modId(modName);
         if (suggestion != null)
         {
+            var args = new SpinneretArguments();
             // Will throw if suggestion is invalid
             args.modId(suggestion);
         }
@@ -36,10 +36,10 @@ public class SuggestionTests
     @MethodSource("modNames")
     public void suggestFolderName(String modName) throws InvalidArgumentException
     {
-        var args = new SpinneretArguments().modName(modName);
-        String suggestion = args.suggestFolderName();
+        String suggestion = ArgumentSuggestions.folderName(modName);
         if (suggestion != null)
         {
+            var args = new SpinneretArguments();
             // Will throw if suggestion is invalid
             args.folderName(suggestion);
         }
@@ -63,12 +63,10 @@ public class SuggestionTests
     public void suggestRootPackageName(String modId, List<String> authors)
         throws InvalidArgumentException
     {
-        var args = new SpinneretArguments().modId(modId);
-        for (var author : authors)
-            args.addAuthor(author);
-        String suggestion = args.suggestRootPackageName();
+        String suggestion = ArgumentSuggestions.rootPackageName(ArgumentSuggestions.modId(modId), authors);
         if (suggestion != null)
         {
+            var args = new SpinneretArguments();
             // Will throw if suggestion is invalid
             args.rootPackageName(suggestion);
         }
@@ -90,7 +88,7 @@ public class SuggestionTests
     public void suggestCompatibleMinecraftVersions(String minecraftVersion, String expected)
         throws InvalidArgumentException
     {
-        var args = new SpinneretArguments().minecraftVersion(minecraftVersion);
-        Assertions.assertEquals(expected, args.suggestCompatibleMinecraftVersions());
+        Assertions.assertEquals(expected, ArgumentSuggestions.compatibleMinecraftVersions(
+            Spinneret.minecraftVersions().get(minecraftVersion)));
     }
 }

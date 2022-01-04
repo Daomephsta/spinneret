@@ -17,6 +17,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
@@ -71,6 +73,7 @@ public class WizardPager
         catch (InvalidArgumentException e)
         {
             JOptionPane.showMessageDialog(window, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         String next = pages.higherKey(currentPageName);
         if (next != null && pageOrder.indexOf(next) != -1)
@@ -124,6 +127,16 @@ public class WizardPager
         protected JLabel label(String text, BiConsumer<JLabel, L> config)
         {
             return add(config, new JLabel(text));
+        }
+
+        protected JTextArea textArea(BiConsumer<JTextArea, L> config)
+        {
+            return add(config, new JTextArea());
+        }
+
+        protected JTextField textField(BiConsumer<JTextField, L> config)
+        {
+            return add(config, new JTextField());
         }
 
         protected <C extends Component> C add(BiConsumer<C, L> config, C component)

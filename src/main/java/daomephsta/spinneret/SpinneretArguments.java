@@ -90,14 +90,6 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
-    public String suggestCompatibleMinecraftVersions()
-    {
-        if (mod.minecraftVersion == null)
-            throw new IllegalStateException("Minecraft Version required");
-        return mod.minecraftVersion.major + "." +
-            mod.minecraftVersion.minor + ".x";
-    }
-
     public SpinneretArguments selectTemplateVariant(
         BiFunction<MinecraftVersion, List<Template.Variant>, Template.Variant> defaultFactory)
     {
@@ -149,21 +141,6 @@ public class SpinneretArguments implements LiquidSupport
         return problems;
     }
 
-    public String suggestModId()
-    {
-        if (mod.name == null)
-            throw new IllegalStateException("Mod name required");
-        return normalise(mod.name, (i, ch) ->
-        {
-            if (Character.isWhitespace(ch))
-                return '_';
-            else if (inRange(ch, 'a', 'z') || inRange(ch, '0', '9') || ch == '-' || ch == '_')
-                return ch;
-            else
-                return -1;
-        });
-    }
-
     public SpinneretArguments folderName(String folderName) throws InvalidArgumentException
     {
         handleProblems("Invalid folder name " + folderName, validateFolderName(folderName));
@@ -188,20 +165,6 @@ public class SpinneretArguments implements LiquidSupport
                 problems.add("Null byte at index " + i + ". Invalid or non-portable.");
         }
         return problems;
-    }
-
-    public String suggestFolderName()
-    {
-        if (mod.name == null)
-            throw new IllegalStateException("Mod name required");
-        return normalise(mod.name, (i, ch) ->
-        {
-            if (ch == ' ')
-                return '-';
-            if ("\\/:*?\"<>|\0".indexOf(ch) != -1)
-                return -1;
-            return ch;
-        });
     }
 
     public SpinneretArguments addAuthor(String author)
@@ -259,43 +222,6 @@ public class SpinneretArguments implements LiquidSupport
         }
     }
 
-    public String suggestRootPackageName()
-    {
-        if (mod.id == null)
-            throw new IllegalStateException("Mod ID required");
-        if (mod.authors.isEmpty())
-            throw new IllegalStateException("Author required");
-        String normalisedMainAuthor = normalise(mod.authors.get(0), (i, ch) ->
-        {
-            if (Character.isWhitespace(ch))
-                return '_';
-            else if ((i == 0 && Character.isJavaIdentifierStart(ch)) ||
-                (i != 0 && Character.isJavaIdentifierPart(ch)))
-            {
-                return ch;
-            }
-            else
-                return -1;
-        });
-        if (normalisedMainAuthor == null || normalisedMainAuthor.isEmpty())
-            return null;
-        String normalisedModId = normalise(mod.id, (i, ch) ->
-        {
-            if (ch == '-' || Character.isWhitespace(ch))
-                return '_';
-            else if ((i == 0 && Character.isJavaIdentifierStart(ch)) ||
-                (i != 0 && Character.isJavaIdentifierPart(ch)))
-            {
-                return ch;
-            }
-            else
-                return -1;
-        });
-        if (normalisedModId == null || normalisedModId.isEmpty())
-            return null;
-        return normalisedMainAuthor + "." + normalisedModId;
-    }
-
     public String folderName()
     {
         return mod.folderName;
@@ -316,7 +242,7 @@ public class SpinneretArguments implements LiquidSupport
         );
     }
 
-    private static boolean inRange(int c, int lower, int upper)
+    static boolean inRange(int c, int lower, int upper)
     {
         return lower <= c && c <= upper;
     }
@@ -327,7 +253,7 @@ public class SpinneretArguments implements LiquidSupport
             throw new InvalidArgumentException(header, problems);
     }
 
-    private static String normalise(String input, IntBinaryOperator charNormaliser)
+    static String normalise(String input, IntBinaryOperator charNormaliser)
     {
         // Deliberate user locale usage as the string is being normalised anyway
         String lowercase = Normalizer.normalize(input.toLowerCase(), Normalizer.Form.NFD);
