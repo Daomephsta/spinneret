@@ -1,2 +1,3 @@
 rootProject.name = 'spinneret'
 include 'swing-gui'
+include 'javafx-gui'

@@ -2,7 +2,7 @@ package daomephsta.spinneret.versioning;
 
 import com.google.gson.JsonObject;
 
-interface VersionExtension extends Comparable<VersionExtension>
+public interface VersionExtension extends Comparable<VersionExtension>
 {
     void write(JsonObject json);
 
@@ -33,7 +33,7 @@ interface VersionExtension extends Comparable<VersionExtension>
         return extension;
     }
 
-    static final VersionExtension NONE = new VersionExtension()
+    public static final VersionExtension NONE = new VersionExtension()
     {
         @Override
         public int getSortIndex()
