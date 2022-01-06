@@ -73,6 +73,21 @@ public class WizardPager
 
     public void next()
     {
+        if (!applyPage())
+            return;
+        String next = pages.higherKey(currentPageName);
+        if (next != null && pageOrder.indexOf(next) != -1)
+            showPage(next);
+    }
+
+    public boolean hasNext()
+    {
+        String next = pages.higherKey(currentPageName);
+        return next != null && pageOrder.indexOf(next) != -1;
+    }
+
+    public boolean applyPage()
+    {
         try
         {
             pages.get(currentPageName).apply(spinneretArgs);
@@ -84,17 +99,9 @@ public class WizardPager
             errorDialog.setContentText(e.getMessage());
             errorDialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
             errorDialog.showAndWait();
-            return;
+            return false;
         }
-        String next = pages.higherKey(currentPageName);
-        if (next != null && pageOrder.indexOf(next) != -1)
-            showPage(next);
-    }
-
-    public boolean hasNext()
-    {
-        String next = pages.higherKey(currentPageName);
-        return next != null && pageOrder.indexOf(next) != -1;
+        return true;
     }
 
     public void previous()

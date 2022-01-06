@@ -66,6 +66,15 @@ public class WizardPager
 
     public void next()
     {
+        if (!applyPage())
+            return;
+        String next = pages.higherKey(currentPageName);
+        if (next != null && pageOrder.indexOf(next) != -1)
+            showPage(next);
+    }
+
+    public boolean applyPage()
+    {
         try
         {
             pages.get(currentPageName).apply(spinneretArgs);
@@ -73,11 +82,9 @@ public class WizardPager
         catch (InvalidArgumentException e)
         {
             JOptionPane.showMessageDialog(window, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
-        String next = pages.higherKey(currentPageName);
-        if (next != null && pageOrder.indexOf(next) != -1)
-            showPage(next);
+        return true;
     }
 
     public boolean hasNext()

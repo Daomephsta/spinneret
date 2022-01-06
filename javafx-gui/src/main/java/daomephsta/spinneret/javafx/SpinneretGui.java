@@ -3,13 +3,16 @@ package daomephsta.spinneret.javafx;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
-import daomephsta.spinneret.javafx.WizardPager.WizardPage;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
@@ -19,7 +22,7 @@ public class SpinneretGui extends Application
 {
     private final SpinneretArguments spinneretArgs = new SpinneretArguments();
     private final WizardPager pager = new WizardPager(spinneretArgs,
-        new TemplateSelectionPage(), new ModInfoPage(), new WizardPage("loading"));
+        new TemplateSelectionPage(), new ModInfoPage());
     @FXML
     private Button back, next;
 
@@ -58,7 +61,34 @@ public class SpinneretGui extends Application
     private void updatePageControls()
     {
         back.setDisable(!pager.hasPrevious());
-        next.setDisable(!pager.hasNext());
+        if (!pager.hasNext())
+        {
+            next.setText("Finish");
+            next.setOnAction(this::finish);
+        }
+    }
+
+    private void finish(ActionEvent event)
+    {
+        pager.applyPage();
+        try
+        {
+            Spinneret.spin(spinneretArgs);
+        }
+        catch (IOException e)
+        {
+            new Alert(AlertType.ERROR, "Template generation failed: " + e.getMessage());
+            return;
+        }
+        try
+        {
+            this.stop();
+        }
+        catch (Exception e)
+        {
+            new Alert(AlertType.ERROR, "Could not stop Spinneret: " + e.getMessage());
+            return;
+        }
     }
 
     public static void main(String[] args)
