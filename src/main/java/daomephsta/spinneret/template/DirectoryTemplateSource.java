@@ -15,6 +15,8 @@ import java.util.Set;
 
 import daomephsta.spinneret.SpinneretArguments;
 import liqp.RenderSettings;
+import liqp.Template;
+import liqp.exceptions.LiquidException;
 
 public class DirectoryTemplateSource implements TemplateSource
 {
@@ -51,7 +53,7 @@ public class DirectoryTemplateSource implements TemplateSource
                 var renderSettings = new RenderSettings.Builder().withStrictVariables(true).build();
                 // Template substitution
                 Path destination = Paths.get(
-                    liqp.Template.parse(file.toAbsolutePath().toString())
+                    parsePathTemplate(file.toAbsolutePath().toString())
                         .withRenderSettings(renderSettings)
                         .render(spinneretArgs));
                 // Make relative to destinationFolder
@@ -62,7 +64,7 @@ public class DirectoryTemplateSource implements TemplateSource
                 {
                     fileName = fileName.substring(0, fileName.length() - ".liquid".length());
                     destination = destination.getParent().resolve(fileName);
-                    var template = liqp.Template.parse(Files.newInputStream(file));
+                    var template = parseFile(file);
                     content = new ByteArrayInputStream(template
                         .withRenderSettings(renderSettings)
                         .render(spinneretArgs)
@@ -81,6 +83,32 @@ public class DirectoryTemplateSource implements TemplateSource
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    private Template parsePathTemplate(String path) throws IOException
+    {
+        try
+        {
+            return liqp.Template.parse(path);
+        }
+        catch (LiquidException e)
+        {
+            System.err.println("Failed to parse path template " + path);
+            throw e;
+        }
+    }
+
+    private Template parseFile(Path file) throws IOException
+    {
+        try
+        {
+            return liqp.Template.parse(Files.newInputStream(file));
+        }
+        catch (LiquidException e)
+        {
+            System.err.println("Failed to parse " + file);
+            throw e;
+        }
     }
 
     private boolean isExcluded(Path dir)
