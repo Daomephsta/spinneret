@@ -13,7 +13,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 
 class TemplateSelectionPage extends WizardPage
@@ -60,15 +61,13 @@ class TemplateSelectionPage extends WizardPage
         spinneretArgs.minecraftVersion(minecraftVersion.getSelectionModel().getSelectedItem());
         spinneretArgs.selectTemplateVariant((version, templateVariants) ->
         {
-            var dialog = new Dialog<ButtonType>();
-            dialog.setTitle("No matching template variant");
-            dialog.setContentText("No template variant for " + version.raw + ". Attempt to use the latest template?");
             var yes = new ButtonType("Yes", ButtonData.LEFT);
             var exit = new ButtonType("Exit", ButtonData.RIGHT);
-            dialog.getDialogPane().getButtonTypes().addAll(yes, exit);
-            dialog.showAndWait();
+            var message = "No matching template variant for " + version.raw + ". Attempt to use the latest template?";
+            var alert = new Alert(AlertType.CONFIRMATION, message, yes, exit);
+            alert.showAndWait();
 
-            ButtonType result = dialog.getResult();
+            ButtonType result = alert.getResult();
             if (result == yes)
                 return templateVariants.stream().reduce((a, b) -> a.isLater(b) ? a : b).get();
             else if (result == exit)

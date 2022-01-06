@@ -12,8 +12,8 @@ import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.StackPane;
 
 public class WizardPager
@@ -94,11 +94,7 @@ public class WizardPager
         }
         catch (InvalidArgumentException e)
         {
-            var errorDialog = new Dialog<>();
-            errorDialog.setTitle("Error");
-            errorDialog.setContentText(e.getMessage());
-            errorDialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-            errorDialog.showAndWait();
+            new Alert(AlertType.ERROR, e.getMessage()).show();
             return false;
         }
         return true;
