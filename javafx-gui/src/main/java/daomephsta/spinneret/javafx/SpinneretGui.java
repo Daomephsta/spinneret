@@ -17,10 +17,9 @@ import javafx.stage.Stage;
 
 public class SpinneretGui extends Application
 {
-    private static final String MOD_INFO_PAGE = "mod-info";
     private final SpinneretArguments spinneretArgs = new SpinneretArguments();
     private final WizardPager pager = new WizardPager(spinneretArgs,
-        new TemplateSelectionPage(), new WizardPage(MOD_INFO_PAGE));
+        new TemplateSelectionPage(), new ModInfoPage(), new WizardPage("loading"));
     @FXML
     private Button back, next;
 

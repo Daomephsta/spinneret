@@ -1,7 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 
-<VBox>
-	<Label text="Hello world FXML"/>
+<VBox spacing="5" xmlns:fx="http://javafx.com/fxml">
+	<HBox spacing="5">
+		<Label text="Mod name"/>
+		<TextField fx:id="modName"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Mod ID"/>
+		<TextField fx:id="modId"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Description"/>
+		<TextArea fx:id="description" prefRowCount="2"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Authors"/>
+		<TextField fx:id="authors"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Root package"/>
+		<TextField fx:id="rootPackage"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Folder name"/>
+		<TextField fx:id="folderName"/>
+	</HBox>
+	<HBox spacing="5">
+		<Label text="Mod version"/>
+		<TextField fx:id="modVersion"/>
+	</HBox>
 </VBox>
