@@ -66,6 +66,11 @@ public class SpinneretGui extends Application
             next.setText("Finish");
             next.setOnAction(this::finish);
         }
+        else
+        {
+            next.setText("Next >");
+            next.setOnAction(this::handlePageControls);
+        }
     }
 
     private void finish(ActionEvent event)
