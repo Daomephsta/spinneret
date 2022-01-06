@@ -17,6 +17,7 @@ public class Spinneret
     {
         Filter.registerFilter(new JsonFilter());
         Filter.registerFilter(new PascalCaseFilter());
+        Filter.registerFilter(new FormatDateFilter());
 
         args.template().generate(args);
     }
