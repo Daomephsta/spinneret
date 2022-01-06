@@ -101,12 +101,13 @@ public class ModInfoPage extends WizardPage
             throw new InvalidArgumentException("Missing required information", problems);
         spinneretArgs.modName(modName.getText())
             .modId(modId.getText())
-            .description(description.getText());
-        for (String author : getAuthors())
-            spinneretArgs.addAuthor(author);
+            .description(description.getText())
+            .authors(getAuthors());
         spinneretArgs.rootPackageName(rootPackage.getText())
             .folderName(folderName.getText())
             .modVersion(modVersion.getText());
+        var minecraftVersion = spinneretArgs.minecraftVersion();
+        spinneretArgs.compatibleMinecraftVersions(minecraftVersion.major + "." + minecraftVersion.minor + ".x");
     }
 
     private List<String> getAuthors()

@@ -14,11 +14,12 @@ import java.util.function.IntBinaryOperator;
 import daomephsta.spinneret.ModScope.RootPackage;
 import daomephsta.spinneret.template.Template;
 import daomephsta.spinneret.versioning.MinecraftVersion;
+import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
 
 public class SpinneretArguments implements LiquidSupport
 {
-    static class TemplateScope
+    static class TemplateScope implements Inspectable
     {
         public URL url;
     }
@@ -167,9 +168,9 @@ public class SpinneretArguments implements LiquidSupport
         return problems;
     }
 
-    public SpinneretArguments addAuthor(String author)
+    public SpinneretArguments authors(List<String> authors)
     {
-        this.mod.authors.add(author);
+        this.mod.authors = authors;
         return this;
     }
 

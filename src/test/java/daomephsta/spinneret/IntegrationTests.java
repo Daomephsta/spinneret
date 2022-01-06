@@ -23,9 +23,8 @@ public class IntegrationTests
                 .minecraftVersion(minecraftVersion)
                 .compatibleMinecraftVersions(minecraftVersion)
                 .modName(modName)
-                .modId(modId);
-            for (String author : authors)
-                spinneretArgs.addAuthor(author);
+                .modId(modId)
+                .authors(authors);
             spinneretArgs
                 .description("A mod for testing Spinneret")
                 .rootPackageName(ArgumentSuggestions.rootPackageName(modId, authors))
