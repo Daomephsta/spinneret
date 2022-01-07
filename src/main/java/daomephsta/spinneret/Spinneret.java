@@ -15,11 +15,14 @@ public class Spinneret
 
     public static void spin(SpinneretArguments args) throws IOException
     {
+        args.template().generate(args);
+    }
+
+    public static void registerFilters()
+    {
         Filter.registerFilter(new JsonFilter());
         Filter.registerFilter(new PascalCaseFilter());
         Filter.registerFilter(new FormatDateFilter());
-
-        args.template().generate(args);
     }
 
     public static Config configuration()

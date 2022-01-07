@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Map;
 import java.util.Set;
 
 import daomephsta.spinneret.SpinneretArguments;
@@ -20,13 +21,16 @@ import liqp.exceptions.LiquidException;
 
 public class DirectoryTemplateSource implements TemplateSource
 {
+    private static final RenderSettings STRICT_RENDERING = new RenderSettings.Builder().withStrictVariables(true).build();
     private final Path sourceDirectory;
     private final Set<Path> exclude;
+    private final Map<Path, liqp.Template> rename;
 
-    public DirectoryTemplateSource(Path path, Set<Path> exclude)
+    public DirectoryTemplateSource(Path path, Set<Path> exclude, Map<Path, liqp.Template> rename)
     {
         this.sourceDirectory = path;
         this.exclude = exclude;
+        this.rename = rename;
     }
 
     @Override
@@ -50,20 +54,19 @@ public class DirectoryTemplateSource implements TemplateSource
             {
                 if (isExcluded(file))
                     return FileVisitResult.SKIP_SUBTREE;
-                var renderSettings = new RenderSettings.Builder().withStrictVariables(true).build();
-                // Template substitution
-                Path destination = Paths.get(
-                    parsePathTemplate(file.toAbsolutePath().toString())
-                        .withRenderSettings(renderSettings)
-                        .render(spinneretArgs));
-                // Make relative to destinationFolder
-                destination = destinationFolder.resolve(sourceDirectory.relativize(destination));
-                String fileName = destination.getFileName().toString();
+                var renderSettings = STRICT_RENDERING;
+                Path local = sourceDirectory.relativize(file);
+                Path destination = getDestinationPath(destinationFolder, local, spinneretArgs);
+                String localFile = local.getFileName().toString();
+                String destinationFile = destination.getFileName().toString();
                 InputStream content;
-                if (fileName.endsWith(".liquid"))
+                if (localFile.endsWith(".liquid"))
                 {
-                    fileName = fileName.substring(0, fileName.length() - ".liquid".length());
-                    destination = destination.getParent().resolve(fileName);
+                    if (destinationFile.endsWith(".liquid"))
+                    {
+                        destinationFile = destinationFile.substring(0, destinationFile.length() - ".liquid".length());
+                        destination = destination.getParent().resolve(destinationFile);
+                    }
                     var template = parseFile(file);
                     content = new ByteArrayInputStream(template
                         .withRenderSettings(renderSettings)
@@ -85,15 +88,24 @@ public class DirectoryTemplateSource implements TemplateSource
         });
     }
 
-    private Template parsePathTemplate(String path) throws IOException
+    private Path getDestinationPath(Path destinationFolder, Path local, SpinneretArguments spinneretArgs) throws IOException
     {
+        Path renamingRoot = local;
+        Template renamer = null;
+        while (renamingRoot != null && (renamer = rename.get(renamingRoot)) == null)
+            renamingRoot = renamingRoot.getParent();
         try
         {
-            return liqp.Template.parse(path);
+            Path destination = renamer == null
+                ? local
+                : Paths.get(renamer.withRenderSettings(STRICT_RENDERING).render(spinneretArgs))
+                    .resolve(renamingRoot.relativize(local));
+            destination = destinationFolder.resolve(destination);
+            return destination;
         }
-        catch (LiquidException e)
+        catch (LiquidException | IllegalArgumentException e)
         {
-            System.err.println("Failed to parse path template " + path);
+            System.err.println("Failed to parse path template for " + local);
             throw e;
         }
     }

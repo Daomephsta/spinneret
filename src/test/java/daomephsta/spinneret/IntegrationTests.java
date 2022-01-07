@@ -14,14 +14,14 @@ public class IntegrationTests
     {
         try
         {
-            String minecraftVersion = Spinneret.minecraftVersions().getLatest().raw;
+            var latest = Spinneret.minecraftVersions().getLatest();
             String modName = "Test Mod";
             String modId = ArgumentSuggestions.modId(modName);
             List<String> authors = List.of("Alice", "Bob");
             SpinneretArguments spinneretArgs = new SpinneretArguments()
                 .template("spinneret-java")
-                .minecraftVersion(minecraftVersion)
-                .compatibleMinecraftVersions(minecraftVersion)
+                .minecraftVersion(latest.raw)
+                .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
                 .modName(modName)
                 .modId(modId)
                 .authors(authors);
