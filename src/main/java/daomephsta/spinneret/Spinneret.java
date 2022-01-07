@@ -22,7 +22,6 @@ public class Spinneret
     {
         Filter.registerFilter(new JsonFilter());
         Filter.registerFilter(new PascalCaseFilter());
-        Filter.registerFilter(new FormatDateFilter());
     }
 
     public static Config configuration()
