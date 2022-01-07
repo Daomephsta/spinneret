@@ -19,10 +19,6 @@ import liqp.parser.LiquidSupport;
 
 public class SpinneretArguments implements LiquidSupport
 {
-    static
-    {
-        Spinneret.registerFilters();
-    }
     static class TemplateScope implements Inspectable
     {
         public URL url;

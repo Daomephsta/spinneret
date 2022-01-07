@@ -17,10 +17,18 @@ import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.util.Json;
 import daomephsta.spinneret.versioning.MinecraftVersion;
 import daomephsta.spinneret.versioning.Range;
+import liqp.filters.Filter;
 
 public class Template
 {
     private static final Json JSON = new Json(new GsonBuilder().setLenient().create());
+    // Ensure liqp additions are registered before any usage of liqp
+    static
+    {
+        Filter.registerFilter(new JsonFilter());
+        Filter.registerFilter(new PascalCaseFilter());
+    }
+
     public record Variant(Range<MinecraftVersion> minecraftRange, TemplateSource source)
     {
         private boolean matches(MinecraftVersion minecraft)
