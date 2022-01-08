@@ -20,11 +20,17 @@ import javafx.stage.Stage;
 
 public class SpinneretGui extends Application
 {
-    private final SpinneretArguments spinneretArgs = new SpinneretArguments();
-    private final WizardPager pager = new WizardPager(spinneretArgs,
-        new TemplateSelectionPage(), new ModInfoPage());
+    private final SpinneretArguments spinneretArgs;
+    private final WizardPager pager;
     @FXML
     private Button back, next;
+
+    public SpinneretGui()
+    {
+        this.spinneretArgs = new SpinneretArguments();
+        this.pager = new WizardPager(spinneretArgs,
+            new TemplateSelectionPage(), new ModInfoPage(), new DependenciesPage(spinneretArgs));
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception
@@ -75,7 +81,8 @@ public class SpinneretGui extends Application
 
     private void finish(ActionEvent event)
     {
-        pager.applyPage();
+        if (!pager.applyPage())
+            return;
         try
         {
             Spinneret.spin(spinneretArgs);

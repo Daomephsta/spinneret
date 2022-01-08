@@ -34,7 +34,7 @@ public class Spinneret
             {
                 versionCache = MinecraftVersions.load(
                     Paths.get("minecraft_versions.json"),
-                    Spinneret.configuration().minecraftVersions());
+                    Spinneret.configuration().urls().minecraftVersions);
             }
             catch (IOException e)
             {

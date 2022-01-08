@@ -103,6 +103,11 @@ public class Json
             element.getClass().getSimpleName());
     }
 
+    public JsonArray readArray(Reader reader)
+    {
+        return asArray(readElement(reader));
+    }
+
     public <T> Set<T> getAsSet(JsonObject json, String member, Class<T> elementType)
     {
         if (!json.has(member))
@@ -123,15 +128,22 @@ public class Json
 
     public static Stream<JsonElement> stream(JsonObject json, String member)
     {
-        var array = getAsArray(json, member);
-        return StreamSupport.stream(array.spliterator(), false);
+        return stream(getAsArray(json, member));
     }
 
     public <T> Stream<T> streamAs(JsonObject json, String member, Class<T> elementType)
     {
-        var array = getAsArray(json, member);
-        return StreamSupport.stream(array.spliterator(), false)
-            .map((Function<JsonElement, T>) element -> gson.fromJson(element, elementType));
+        return streamAs(getAsArray(json, member), elementType);
+    }
+
+    public static Stream<JsonElement> stream(JsonArray array)
+    {
+        return StreamSupport.stream(array.spliterator(), false);
+    }
+
+    public <T> Stream<T> streamAs(JsonArray array, Class<T> elementType)
+    {
+        return stream(array).map((Function<JsonElement, T>) element -> gson.fromJson(element, elementType));
     }
 
     public JsonElement writeElement(Object object)

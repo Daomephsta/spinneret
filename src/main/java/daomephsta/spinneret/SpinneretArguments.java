@@ -234,6 +234,11 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
+    public SpinneretArguments dependencies(Map<String, String> dependencies)
+    {
+        this.mod.dependencies = dependencies;
+        return this;
+    }
     @Override
     public Map<String, Object> toLiquid()
     {

@@ -19,6 +19,7 @@ class ModScope implements LiquidSupport
     public String description;
     public ModScope.RootPackage rootPackage;
     public String folderName;
+    public Map<String, String> dependencies;
 
     @Override
     public Map<String, Object> toLiquid()
@@ -31,7 +32,8 @@ class ModScope implements LiquidSupport
             "version", version,
             "authors", authors,
             "description", description,
-            "rootPackage", rootPackage
+            "rootPackage", rootPackage,
+            "dependencies", dependencies
         );
     }
 
