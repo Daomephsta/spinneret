@@ -12,10 +12,10 @@ import java.util.function.BiFunction;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.util.Json;
 import daomephsta.spinneret.versioning.MinecraftVersion;
+import daomephsta.spinneret.versioning.MinecraftVersions;
 import daomephsta.spinneret.versioning.Range;
 import liqp.filters.Filter;
 
@@ -47,10 +47,10 @@ public class Template
         }
     }
 
-    public static Variant select(URL templateUrl, MinecraftVersion minecraftVersion,
+    public static Variant select(URL templateUrl, MinecraftVersion minecraftVersion, MinecraftVersions minecraftVersions,
         BiFunction<MinecraftVersion, List<Variant>, Variant> defaultFactory)
     {
-        List<Variant> variants = Template.readVariants(templateUrl);
+        List<Variant> variants = Template.readVariants(templateUrl, minecraftVersions);
         for (var variant : variants)
         {
             if (variant.matches(minecraftVersion))
@@ -59,7 +59,7 @@ public class Template
         return defaultFactory.apply(minecraftVersion, variants);
     }
 
-    private static List<Variant> readVariants(URL selectors)
+    private static List<Variant> readVariants(URL selectors, MinecraftVersions minecraftVersions)
     {
         try (Reader selectorsReader = new InputStreamReader(selectors.openStream()))
         {
@@ -72,7 +72,7 @@ public class Template
                 {
                     if (templateDefaults != null)
                         templateJson = Json.withDefaults(templateJson, templateDefaults);
-                    return readVariant(templateJson);
+                    return readVariant(templateJson, minecraftVersions);
                 })
                 .collect(toList());
         }
@@ -82,9 +82,9 @@ public class Template
         }
     }
 
-    private static Variant readVariant(JsonObject json)
+    private static Variant readVariant(JsonObject json, MinecraftVersions minecraftVersions)
     {
-        var minecraftRange = Range.parse(Spinneret.minecraftVersions()::get,
+        var minecraftRange = Range.parse(minecraftVersions::get,
             Json.getAsString(json, "minecraft"));
         return new Variant(minecraftRange,
             JSON.getAs(json, "source", TemplateSource.class));

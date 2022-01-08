@@ -1,11 +1,12 @@
 package daomephsta.spinneret;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
+import daomephsta.spinneret.versioning.MinecraftVersions;
 
 public class IntegrationTests
 {
@@ -14,13 +15,16 @@ public class IntegrationTests
     {
         try
         {
-            var latest = Spinneret.minecraftVersions().getLatest();
+            var minecraftVersions = MinecraftVersions.load(
+                Paths.get("minecraft_versions.json"),
+                Spinneret.configuration().urls().minecraftVersions).join();
+            var latest = minecraftVersions.getLatest();
             String modName = "Test Mod";
             String modId = ArgumentSuggestions.modId(modName);
             List<String> authors = List.of("Alice", "Bob");
             SpinneretArguments spinneretArgs = new SpinneretArguments()
                 .template("spinneret-java")
-                .minecraftVersion(latest.raw)
+                .minecraftVersion(latest)
                 .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
                 .modName(modName)
                 .modId(modId)
@@ -30,7 +34,7 @@ public class IntegrationTests
                 .rootPackageName(ArgumentSuggestions.rootPackageName(modId, authors))
                 .folderName(ArgumentSuggestions.folderName(modName))
                 .modVersion("0.0.1");
-            Spinneret.spin(spinneretArgs.selectTemplateVariant(
+            Spinneret.spin(spinneretArgs.selectTemplateVariant(minecraftVersions,
                 (mcVersion, templates) -> {throw new IllegalStateException("No matching template");}));
         }
         catch (IOException | InvalidArgumentException e)

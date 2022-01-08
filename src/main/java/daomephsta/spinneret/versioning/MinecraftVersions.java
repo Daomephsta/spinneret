@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -34,6 +36,7 @@ import daomephsta.spinneret.util.Json;
 
 public class MinecraftVersions
 {
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static final Json JSON = new Json(new GsonBuilder()
         .registerTypeAdapter(MinecraftVersion.class, new MinecraftVersion.Serialiser())
         .create());
@@ -79,28 +82,34 @@ public class MinecraftVersions
         return sorted.descendingSet();
     }
 
-    public static MinecraftVersions load(Path cache, URI versionManifest) throws IOException
+    public static CompletableFuture<MinecraftVersions> load(Path cache, URI versionManifest)
     {
-        cache = cache.toAbsolutePath();
-        MinecraftVersions mcVersions;
-        if (Files.exists(cache))
-            mcVersions = deserialise(cache);
-        else
-            mcVersions = new MinecraftVersions(new Date(0));
-        mcVersions.checkForUpdates(versionManifest);
-        mcVersions.serialise(cache);
-        return mcVersions;
+        var mcVersionsFuture = Files.exists(cache)
+            ? deserialise(cache)
+            : CompletableFuture.supplyAsync(() -> new MinecraftVersions(new Date(0)));
+        return mcVersionsFuture.thenApply(mcVersions ->
+        {
+            mcVersions.checkForUpdates(versionManifest).join();
+            try
+            {
+                mcVersions.serialise(cache);
+            }
+            catch (IOException e)
+            {
+                throw new CompletionException(e);
+            }
+            return mcVersions;
+        });
     }
 
-    public void checkForUpdates(URI minecraftVersionManifest) throws IOException
+    public CompletableFuture<Void> checkForUpdates(URI minecraftVersionManifest)
     {
-        var client = HttpClient.newHttpClient();
+        System.out.println("Checking for updates on " + Thread.currentThread().getName());
         var request = HttpRequest.newBuilder(minecraftVersionManifest)
             .setHeader("If-Modified-Since", HTTP_DATE.format(updated))
             .GET().build();
-        try
+        return CLIENT.sendAsync(request, BodyHandlers.ofInputStream()).thenAccept(response ->
         {
-            var response = client.send(request, BodyHandlers.ofInputStream());
             switch (response.statusCode())
             {
             case 200 /*OK*/ ->
@@ -110,18 +119,18 @@ public class MinecraftVersions
                     JsonArray versions = Json.getAsArray(JSON.readObject(reader), "versions");
                     byId = parseVersionManifest(versions);
                     sorted = new TreeSet<>(byId.values());
+                    System.out.println("200 OK");
+                }
+                catch (IOException io)
+                {
+                    io.printStackTrace(System.err);
                 }
             }
             case 304 /*NOT MODIFIED*/ -> {/*NO OP*/}
             default -> throw new IllegalStateException("Unexpected status code " + response.statusCode());
             }
             updated = Calendar.getInstance(GMT, Locale.ROOT).getTime();
-        }
-        catch (InterruptedException e)
-        {
-            System.err.println(request + " interrupted");
-            e.printStackTrace(System.err);
-        }
+        });
     }
 
     private MinecraftVersion lastRelease;
@@ -154,35 +163,42 @@ public class MinecraftVersions
         return newVersionsById;
     }
 
-    private static MinecraftVersions deserialise(Path cache) throws IOException
+    private static CompletableFuture<MinecraftVersions> deserialise(Path cache)
     {
-        try (Reader reader = Files.newBufferedReader(cache))
+        return CompletableFuture.supplyAsync(() ->
         {
-            var root = JSON.readObject(reader);
-            Date updated;
-            try
+            try (Reader reader = Files.newBufferedReader(cache))
             {
-                updated = HTTP_DATE.parse(Json.getAsString(root, "updated"));
+                var root = JSON.readObject(reader);
+                Date updated;
+                try
+                {
+                    updated = HTTP_DATE.parse(Json.getAsString(root, "updated"));
+                }
+                catch (ParseException e)
+                {
+                    System.err.println("Failed to parse date, defaulting to Unix time 0");
+                    e.printStackTrace(System.err);
+                    updated = new Date(0);
+                }
+                JsonObject versions = root.get("versions").getAsJsonObject();
+                MinecraftVersions mcVersions = new MinecraftVersions(updated);
+                for (Entry<String, JsonElement> member : versions.entrySet())
+                {
+                    var version = JSON.as(member.getValue(), MinecraftVersion.class);
+                    mcVersions.byId.put(member.getKey(), version);
+                }
+                mcVersions.sorted = new TreeSet<>(mcVersions.byId.values());
+                return mcVersions;
             }
-            catch (ParseException e)
+            catch (IOException e)
             {
-                System.err.println("Failed to parse date, defaulting to Unix time 0");
-                e.printStackTrace(System.err);
-                updated = new Date(0);
+                throw new CompletionException(e);
             }
-            JsonObject versions = root.get("versions").getAsJsonObject();
-            MinecraftVersions mcVersions = new MinecraftVersions(updated);
-            for (Entry<String, JsonElement> member : versions.entrySet())
-            {
-                var version = JSON.as(member.getValue(), MinecraftVersion.class);
-                mcVersions.byId.put(member.getKey(), version);
-            }
-            mcVersions.sorted = new TreeSet<>(mcVersions.byId.values());
-            return mcVersions;
-        }
+        });
     }
 
-    public void serialise(Path cache) throws IOException
+    private void serialise(Path cache) throws IOException
     {
         cache = cache.toAbsolutePath();
         JsonObject root = new JsonObject();

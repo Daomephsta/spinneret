@@ -14,6 +14,7 @@ import java.util.function.IntBinaryOperator;
 import daomephsta.spinneret.ModScope.RootPackage;
 import daomephsta.spinneret.template.Template;
 import daomephsta.spinneret.versioning.MinecraftVersion;
+import daomephsta.spinneret.versioning.MinecraftVersions;
 import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
 
@@ -60,14 +61,6 @@ public class SpinneretArguments implements LiquidSupport
         return selectedTemplateVariant;
     }
 
-    public SpinneretArguments minecraftVersion(String minecraftVersion) throws InvalidArgumentException
-    {
-        this.mod.minecraftVersion = Spinneret.minecraftVersions().get(minecraftVersion);
-        if (this.mod.minecraftVersion == null)
-            throw new InvalidArgumentException("Unknown version " + minecraftVersion);
-        return this;
-    }
-
     public SpinneretArguments minecraftVersion(MinecraftVersion minecraftVersion)
     {
         this.mod.minecraftVersion = minecraftVersion;
@@ -91,10 +84,10 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
-    public SpinneretArguments selectTemplateVariant(
+    public SpinneretArguments selectTemplateVariant(MinecraftVersions minecraftVersions,
         BiFunction<MinecraftVersion, List<Template.Variant>, Template.Variant> defaultFactory)
     {
-        this.selectedTemplateVariant = Template.select(template.url, mod.minecraftVersion, defaultFactory);
+        this.selectedTemplateVariant = Template.select(template.url, mod.minecraftVersion, minecraftVersions, defaultFactory);
         return this;
     }
 

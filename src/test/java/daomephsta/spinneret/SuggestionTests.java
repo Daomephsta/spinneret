@@ -1,5 +1,6 @@
 package daomephsta.spinneret;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
+import daomephsta.spinneret.versioning.MinecraftVersions;
 
 public class SuggestionTests
 {
@@ -86,9 +88,11 @@ public class SuggestionTests
         "1.18.1, 1.18.x"
     })
     public void suggestCompatibleMinecraftVersions(String minecraftVersion, String expected)
-        throws InvalidArgumentException
     {
+        var minecraftVersions = MinecraftVersions.load(
+            Paths.get("minecraft_versions.json"),
+            Spinneret.configuration().urls().minecraftVersions).join();
         Assertions.assertEquals(expected, ArgumentSuggestions.compatibleMinecraftVersions(
-            Spinneret.minecraftVersions().get(minecraftVersion)));
+            minecraftVersions.get(minecraftVersion)));
     }
 }
