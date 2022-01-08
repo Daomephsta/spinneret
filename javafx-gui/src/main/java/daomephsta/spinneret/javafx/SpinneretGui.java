@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -92,15 +93,7 @@ public class SpinneretGui extends Application
             new Alert(AlertType.ERROR, "Template generation failed: " + e.getMessage());
             return;
         }
-        try
-        {
-            this.stop();
-        }
-        catch (Exception e)
-        {
-            new Alert(AlertType.ERROR, "Could not stop Spinneret: " + e.getMessage());
-            return;
-        }
+        Platform.exit();
     }
 
     public static void main(String[] args)
