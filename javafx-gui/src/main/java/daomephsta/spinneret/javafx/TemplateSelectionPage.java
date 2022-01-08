@@ -44,7 +44,8 @@ class TemplateSelectionPage extends WizardPage
         template.getSelectionModel().selectFirst();
 
         minecraftVersion.setPromptText("Loading...");
-        MinecraftVersions.load(Paths.get("minecraft_versions.json"), Spinneret.configuration().urls().minecraftVersions)
+        MinecraftVersions.load(Paths.get("minecraft_versions.json"),
+                Spinneret.configuration().urls().minecraftVersions)
             .thenAcceptAsync(minecraftVersions ->
             {
                 MinecraftVersion mc114 = minecraftVersions.get("1.14");
@@ -62,6 +63,7 @@ class TemplateSelectionPage extends WizardPage
                         : v -> v.compareTo(mc114) >= 0);
                     minecraftVersion.getSelectionModel().selectFirst();
                 });
+                this.minecraftVersions = minecraftVersions;
             }, Platform::runLater);
     }
 
@@ -69,7 +71,7 @@ class TemplateSelectionPage extends WizardPage
     public void apply(SpinneretArguments spinneretArgs) throws InvalidArgumentException
     {
         var problems = new ArrayList<String>();
-        if (minecraftVersion.getItems().isEmpty())
+        if (minecraftVersions == null || minecraftVersion.getItems().isEmpty())
             problems.add("Minecraft version control has not finished loading");
         if (!problems.isEmpty())
             throw new InvalidArgumentException("Missing required information", problems);

@@ -104,7 +104,6 @@ public class MinecraftVersions
 
     public CompletableFuture<Void> checkForUpdates(URI minecraftVersionManifest)
     {
-        System.out.println("Checking for updates on " + Thread.currentThread().getName());
         var request = HttpRequest.newBuilder(minecraftVersionManifest)
             .setHeader("If-Modified-Since", HTTP_DATE.format(updated))
             .GET().build();
@@ -119,7 +118,6 @@ public class MinecraftVersions
                     JsonArray versions = Json.getAsArray(JSON.readObject(reader), "versions");
                     byId = parseVersionManifest(versions);
                     sorted = new TreeSet<>(byId.values());
-                    System.out.println("200 OK");
                 }
                 catch (IOException io)
                 {
