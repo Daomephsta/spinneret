@@ -7,7 +7,7 @@
 			"https://meta.fabricmc.net/v2/versions/yarn/%s",
 		"fabricLoaderVersions":
 			"https://meta.fabricmc.net/v2/versions/loader/%s",
-		"fabricApiModrinth":
+		"fabricApiVersions":
 			"https://api.modrinth.com/api/v1/mod/P7dR8mSH/version",
 		"fabricApiCurseForge":
 			"https://www.curseforge.com/minecraft/mc-mods/fabric-api/files"
