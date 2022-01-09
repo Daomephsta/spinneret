@@ -31,15 +31,17 @@ public class Config
     {
         public final URI
             minecraftVersions,
-            fabricApiVersions;
+            fabricApiVersions,
+            fabricApiCurseForge;
         private final String
             yarnVersions,
             fabricLoaderVersions;
 
-        private Urls(URI minecraftVersions, URI fabricApiVersions, String yarnVersions, String fabricLoaderVersions)
+        public Urls(URI minecraftVersions, URI fabricApiVersions, URI fabricApiCurseForge, String yarnVersions, String fabricLoaderVersions)
         {
             this.minecraftVersions = minecraftVersions;
             this.fabricApiVersions = fabricApiVersions;
+            this.fabricApiCurseForge = fabricApiCurseForge;
             this.yarnVersions = yarnVersions;
             this.fabricLoaderVersions = fabricLoaderVersions;
         }
@@ -52,6 +54,7 @@ public class Config
                 return new Urls(
                     new URI(Json.getAsString(jsonObj, "minecraftVersions")),
                     new URI(Json.getAsString(jsonObj, "fabricApiVersions")),
+                    new URI(Json.getAsString(jsonObj, "fabricApiCurseForge")),
                     Json.getAsString(jsonObj, "yarnVersions"),
                     Json.getAsString(jsonObj, "fabricLoaderVersions")
                 );

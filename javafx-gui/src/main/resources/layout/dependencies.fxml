@@ -4,6 +4,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Hyperlink?>
 
 <VBox spacing="5" xmlns:fx="http://javafx.com/fxml">
 	<HBox spacing="5">
@@ -20,4 +21,6 @@
 		<Label text="Use Fabric API"/>
 		<CheckBox fx:id="useFabricApi" selected="true"/>
 	</HBox>
+	<Label text="Warning: Autoselected Fabric API version may not match the selected Minecraft version."/>
+	<Hyperlink fx:id="fabricApiCurseForgeLink" text="Check CurseForge"/>
 </VBox>

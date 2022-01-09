@@ -10,6 +10,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -42,18 +43,20 @@ public class FabricMeta
                 .toList());
     }
 
-    public static CompletableFuture<Collection<String>>
-        getFabricApiVersionsFor(MinecraftVersion version)
+    public record FabricApiVersionData(String versionNumber, Set<String> gameVersions) {}
+
+    public static CompletableFuture<Collection<FabricApiVersionData>> getFabricApiVersions()
     {
         return getVersions(Spinneret.configuration().urls().fabricApiVersions,
             reader -> JSON.streamAs(JSON.readArray(reader), JsonObject.class)
-                .filter(e -> JSON.getAsSet(e, "game_versions", String.class).contains(version.raw))
-                .map(e -> Json.getAsString(e, "version_number"))
+                .map(e -> new FabricApiVersionData(
+                    Json.getAsString(e, "version_number"),
+                    JSON.getAsSet(e, "game_versions", String.class)))
                 .toList());
     }
 
-    private static CompletableFuture<Collection<String>>
-        getVersions(URI versionsUrl, Function<Reader, List<String>> parser)
+    private static <T> CompletableFuture<Collection<T>>
+        getVersions(URI versionsUrl, Function<Reader, List<T>> parser)
     {
         var request = HttpRequest.newBuilder(versionsUrl).GET().build();
         return CLIENT.sendAsync(request, BodyHandlers.ofInputStream()).thenApply(response ->
