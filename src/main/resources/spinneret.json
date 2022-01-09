@@ -1,10 +1,19 @@
 {
-	"minecraftVersions": 
-		"https://launchermeta.mojang.com/mc/game/version_manifest.json",
-	"fabricSupportedVersions": 
-		"https://meta.fabricmc.net/v2/versions/game",
-	"templateAliases": 
+	"urls":
 	{
-		
+		"minecraftVersions":
+			"https://launchermeta.mojang.com/mc/game/version_manifest.json",
+		"yarnVersions":
+			"https://meta.fabricmc.net/v2/versions/yarn/%s",
+		"fabricLoaderVersions":
+			"https://meta.fabricmc.net/v2/versions/loader/%s",
+		"fabricApiModrinth":
+			"https://api.modrinth.com/api/v1/mod/P7dR8mSH/version",
+		"fabricApiCurseForge":
+			"https://www.curseforge.com/minecraft/mc-mods/fabric-api/files"
+	},
+	"templateAliases":
+	{
+
 	}
 }
