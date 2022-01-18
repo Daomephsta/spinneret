@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
 repositories {
@@ -9,7 +9,8 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'nl.big-o:liqp:0.8.2'
+    // Must be transitive as Spinneret API classes implement LiquidSupport
+    api 'nl.big-o:liqp:0.8.2'
 }
 
 test {

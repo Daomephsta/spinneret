@@ -3,6 +3,8 @@ package daomephsta.spinneret;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
@@ -28,12 +30,15 @@ public class IntegrationTests
                 .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
                 .modName(modName)
                 .modId(modId)
-                .authors(authors);
-            spinneretArgs
+                .authors(authors)
                 .description("A mod for testing Spinneret")
                 .rootPackageName(ArgumentSuggestions.rootPackageName(modId, authors))
                 .folderName(ArgumentSuggestions.folderName(modName))
-                .modVersion("0.0.1");
+                .modVersion("0.0.1")
+                .dependencies(Map.of(
+                    "mappings", "dummy",
+                    "fabricLoader", "dummy",
+                    "fabricApi", "dummy"));
             Spinneret.spin(spinneretArgs.selectTemplateVariant(minecraftVersions,
                 (mcVersion, templates) -> {throw new IllegalStateException("No matching template");}));
         }

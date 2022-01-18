@@ -142,7 +142,7 @@ public class CopyOperation
         return false;
     }
 
-    private static class Serialiser implements JsonDeserializer<CopyOperation>
+    static class Serialiser implements JsonDeserializer<CopyOperation>
     {
         @Override
         public CopyOperation deserialize(JsonElement json, Type returnType, JsonDeserializationContext context)
