@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
-import daomephsta.spinneret.DeletingFileVisitor;
 import daomephsta.spinneret.Platform;
 import daomephsta.spinneret.SpinneretArguments;
 
@@ -16,15 +15,17 @@ class GitTemplateSource implements TemplateSource
 {
     private final URL location;
     private final String branch;
+    private final CopyOperation copyOperation;
 
-    GitTemplateSource(URL location, String branch)
+    GitTemplateSource(URL location, String branch, CopyOperation copyOperation)
     {
         this.location = location;
         this.branch = branch;
+        this.copyOperation = copyOperation;
     }
 
     @Override
-    public void generate(SpinneretArguments arguments) throws IOException
+    public void generate(SpinneretArguments spinneretArgs) throws IOException
     {
         Path git = findGit();
         if (git != null)
@@ -32,21 +33,22 @@ class GitTemplateSource implements TemplateSource
             Path working = Files.createTempDirectory("spinneret");
             try
             {
-                new ProcessBuilder("git", "clone",
+                var gitProcess = new ProcessBuilder("git", "clone",
                     "--depth", "1",
                     "--branch", branch,
                     location.toExternalForm(),
                     working.toString())
                     .directory(working.toFile())
-                    .inheritIO()
-                    .start().
+                    .inheritIO();
+                gitProcess.start().
                     onExit().get();
+                Path destinationFolder = Paths.get(spinneretArgs.folderName());
+                copyOperation.execute(working, destinationFolder, spinneretArgs);
             }
             catch (InterruptedException | ExecutionException | IOException e)
             {
                 e.printStackTrace();
             }
-            Files.walkFileTree(working.resolve(".git"), new DeletingFileVisitor());
         }
     }
 

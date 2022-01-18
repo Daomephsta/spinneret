@@ -1,18 +1,16 @@
 package daomephsta.spinneret.template;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.JsonAdapter;
 
@@ -38,18 +36,30 @@ class TemplateSourceSerialiser implements JsonDeserializer<TemplateSource>
         case "local_directory":
         {
             Path path = Paths.get(Json.getAsString(jsonObj, "path"));
-            Set<Path> exclude = Json.stream(jsonObj, "exclude")
-                .map(p -> Paths.get(Json.asString(p)))
-                .collect(toSet());
-            Map<Path, liqp.Template> rename = jsonObj.has("rename")
-                ? Json.getAsObject(jsonObj, "rename").entrySet().stream().collect(toMap(
-                        e -> Paths.get(e.getKey()),
-                        e -> liqp.Template.parse(Json.asString(e.getValue()))))
-                : Collections.emptyMap();
-            yield new DirectoryTemplateSource(path, exclude, rename);
+            CopyOperation copyOperation = context.deserialize(json, CopyOperation.class);
+            yield new DirectoryTemplateSource(path, copyOperation);
+        }
+        case "git":
+        {
+            CopyOperation copyOperation = context.deserialize(json, CopyOperation.class);
+            yield new GitTemplateSource(readRepositoryUrl(jsonObj),
+                Json.getAsString(jsonObj, "branch"), copyOperation);
         }
         default:
             throw new IllegalArgumentException("Unknown template source type: " + type);
         };
+    }
+
+    private URL readRepositoryUrl(JsonObject jsonObj) throws JsonParseException
+    {
+        var repository = Json.getAsString(jsonObj, "repository");
+        try
+        {
+            return new URL(repository);
+        }
+        catch (MalformedURLException e)
+        {
+            throw new JsonParseException("Failed to parse repository " + repository, e);
+        }
     }
 }
