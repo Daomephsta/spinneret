@@ -14,6 +14,6 @@
 	},
 	"templateAliases":
 	{
-
+        "spinneret-java": "https://raw.githubusercontent.com/Daomephsta/spinneret-template-java/metadata/spinneret_template.json"
 	}
 }
