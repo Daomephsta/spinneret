@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+
 import daomephsta.spinneret.FabricMeta;
 import daomephsta.spinneret.FabricMeta.FabricApiVersionData;
 import daomephsta.spinneret.Spinneret;
@@ -16,10 +17,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.util.StringConverter;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
+import javafx.util.StringConverter;
 
 class DependenciesPage extends WizardPage
 {
@@ -69,7 +70,7 @@ class DependenciesPage extends WizardPage
     public CompletableFuture<Void> setupVersionCombo(
         ComboBox<String> versionCombo, CompletableFuture<Collection<String>> versionsFuture)
     {
-        versionCombo.setPromptText("Loading...");
+        versionCombo.setPromptText(I18n.get("wizard.loading"));
         return versionsFuture.thenAcceptAsync(versions ->
         {
             versionCombo.getItems().addAll(versions);
@@ -79,7 +80,7 @@ class DependenciesPage extends WizardPage
 
     private void setupFabricApiVersion()
     {
-        fabricApiVersion.setPromptText("Loading...");
+        fabricApiVersion.setPromptText(I18n.get("wizard.loading"));
         FabricMeta.getFabricApiVersions().thenAcceptAsync(versions ->
         {
             fabricApiVersion.getItems().addAll(versions);
@@ -113,7 +114,7 @@ class DependenciesPage extends WizardPage
     {
         var problems = new ArrayList<String>();
         if (yarnVersion.getItems().isEmpty() || fabricLoaderVersion.getItems().isEmpty() || fabricApiVersion.getItems().isEmpty())
-            problems.add("One or more version controls has not finished loading");
+            problems.add(I18n.get("dependenciesPage.waitForVersions"));
 
         var dependencies = new HashMap<String, String>();
         dependencies.put("mappings", yarnVersion.getSelectionModel().getSelectedItem());
@@ -124,6 +125,6 @@ class DependenciesPage extends WizardPage
         spinneretArgs.dependencies(dependencies);
 
         if (!problems.isEmpty())
-            throw new InvalidArgumentException("Missing required information", problems);
+            throw new InvalidArgumentException(I18n.get("error.missingInformation"), problems);
     }
 }

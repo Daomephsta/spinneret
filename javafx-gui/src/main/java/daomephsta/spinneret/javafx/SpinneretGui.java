@@ -36,7 +36,7 @@ public class SpinneretGui extends Application
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        primaryStage.setTitle("Spinneret");
+        primaryStage.setTitle(I18n.get("app.name"));
         Stream.of("16", "32", "48", "256")
             .map(size -> new Image(getClass().getResourceAsStream("/image/icon-" + size + ".png")))
             .forEach(primaryStage.getIcons()::add);
@@ -50,6 +50,7 @@ public class SpinneretGui extends Application
     {
         var fxml = new FXMLLoader();
         fxml.setController(this);
+        I18n.configureFxml(fxml);
         BorderPane root = fxml.load(getClass().getResourceAsStream("/layout/wizard-frame.fxml"));
         root.setCenter(pager.getContent());
         return new Scene(root);
@@ -70,12 +71,12 @@ public class SpinneretGui extends Application
         back.setDisable(!pager.hasPrevious());
         if (!pager.hasNext())
         {
-            next.setText("Finish");
+            next.setText(I18n.get("wizard.finish"));
             next.setOnAction(this::finish);
         }
         else
         {
-            next.setText("Next >");
+            next.setText(I18n.get("wizard.next"));
             next.setOnAction(this::handlePageControls);
         }
     }

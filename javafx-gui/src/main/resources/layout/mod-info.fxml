@@ -7,31 +7,31 @@
 
 <VBox spacing="5" xmlns:fx="http://javafx.com/fxml">
 	<HBox spacing="5">
-		<Label text="Mod name"/>
+		<Label text="%infoPage.modName"/>
 		<TextField fx:id="modName"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Mod ID"/>
+		<Label text="%infoPage.modId"/>
 		<TextField fx:id="modId"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Description"/>
+		<Label text="%infoPage.description"/>
 		<TextArea fx:id="description" prefRowCount="2"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Authors"/>
+		<Label text="%infoPage.authors"/>
 		<TextField fx:id="authors"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Root package"/>
+		<Label text="%infoPage.rootPackage"/>
 		<TextField fx:id="rootPackage"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Folder name"/>
+		<Label text="%infoPage.folderName"/>
 		<TextField fx:id="folderName"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Mod version"/>
+		<Label text="%infoPage.modVersion"/>
 		<TextField fx:id="modVersion"/>
 	</HBox>
 </VBox>

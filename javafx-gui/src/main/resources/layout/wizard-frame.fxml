@@ -13,8 +13,8 @@
 			<padding>
 				<Insets top="5"/>
 			</padding>
-			<Button fx:id="back" text="&lt; Back" onAction="#handlePageControls"/>
-			<Button fx:id="next" text="Next &gt;" onAction="#handlePageControls"/>
+			<Button fx:id="back" text="%wizard.back" onAction="#handlePageControls"/>
+			<Button fx:id="next" text="%wizard.next" onAction="#handlePageControls"/>
 		</FlowPane>
 	</bottom>
 </BorderPane>

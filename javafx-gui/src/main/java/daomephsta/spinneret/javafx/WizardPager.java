@@ -136,6 +136,7 @@ public class WizardPager
         {
             var fxml = new FXMLLoader();
             fxml.setController(this);
+            I18n.configureFxml(fxml);
             var layoutPath = "/layout/" + name + ".fxml";
             try
             {

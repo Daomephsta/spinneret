@@ -8,19 +8,19 @@
 
 <VBox spacing="5" xmlns:fx="http://javafx.com/fxml">
 	<HBox spacing="5">
-		<Label text="Yarn version"/>
+		<Label text="%dependenciesPage.yarnVersion"/>
 		<ComboBox fx:id="yarnVersion"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Fabric Loader version"/>
+		<Label text="%dependenciesPage.fabricLoaderVersion"/>
 		<ComboBox fx:id="fabricLoaderVersion"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Fabric API version"/>
+		<Label text="%dependenciesPage.fabricApiVersion"/>
 		<ComboBox fx:id="fabricApiVersion"/>
-		<Label text="Use Fabric API"/>
+		<Label text="%dependenciesPage.useFabricApi"/>
 		<CheckBox fx:id="useFabricApi" selected="true"/>
 	</HBox>
-	<Label text="Warning: Autoselected Fabric API version may not match the selected Minecraft version."/>
-	<Hyperlink fx:id="fabricApiCurseForgeLink" text="Check CurseForge"/>
+	<Label text="%dependenciesPage.fabricApiVersionWarning"/>
+	<Hyperlink fx:id="fabricApiCurseForgeLink" text="%dependenciesPage.checkCurseForge"/>
 </VBox>

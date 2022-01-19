@@ -84,21 +84,21 @@ public class ModInfoPage extends WizardPage
     {
         List<String> problems = new ArrayList<>();
         if (modName.getText().isBlank())
-            problems.add("Missing mod name");
+            problems.add(I18n.get("infoPage.missingModName"));
         if (modId.getText().isBlank())
-            problems.add("Missing mod ID");
+            problems.add(I18n.get("infoPage.missingModId"));
         if (description.getText().isBlank())
-            problems.add("Missing description");
+            problems.add(I18n.get("infoPage.missingDescription"));
         if (authors.getText().isBlank())
-            problems.add("Missing authors");
+            problems.add(I18n.get("infoPage.missingAuthors"));
         if (rootPackage.getText().isBlank())
-            problems.add("Missing root package name");
+            problems.add(I18n.get("infoPage.missingRootPackage"));
         if (folderName.getText().isBlank())
-            problems.add("Missing folder name");
+            problems.add(I18n.get("infoPage.missingFolderName"));
         if (modVersion.getText().isBlank())
-            problems.add("Missing mod version");
+            problems.add(I18n.get("infoPage.missingModVersion"));
         if (!problems.isEmpty())
-            throw new InvalidArgumentException("Missing required information", problems);
+            throw new InvalidArgumentException(I18n.get("error.missingInformation"), problems);
         spinneretArgs.modName(modName.getText())
             .modId(modId.getText())
             .description(description.getText())

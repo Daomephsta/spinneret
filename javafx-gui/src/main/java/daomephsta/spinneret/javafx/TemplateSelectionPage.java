@@ -15,12 +15,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 
 class TemplateSelectionPage extends WizardPage
 {
@@ -43,7 +43,7 @@ class TemplateSelectionPage extends WizardPage
         template.getItems().addAll(Spinneret.configuration().getTemplateAliases());
         template.getSelectionModel().selectFirst();
 
-        minecraftVersion.setPromptText("Loading...");
+        minecraftVersion.setPromptText(I18n.get("wizard.loading"));
         MinecraftVersions.load(Paths.get("minecraft_versions.json"),
                 Spinneret.configuration().urls().minecraftVersions)
             .thenAcceptAsync(minecraftVersions ->
@@ -72,18 +72,18 @@ class TemplateSelectionPage extends WizardPage
     {
         var problems = new ArrayList<String>();
         if (minecraftVersions == null || minecraftVersion.getItems().isEmpty())
-            problems.add("Minecraft version control has not finished loading");
+            problems.add(I18n.get("template_page.waitForMcVersions"));
         if (!problems.isEmpty())
-            throw new InvalidArgumentException("Missing required information", problems);
+            throw new InvalidArgumentException(I18n.get("error.missingInformation"), problems);
 
         spinneretArgs.template(template.getSelectionModel().getSelectedItem());
         spinneretArgs.minecraftVersion(minecraftVersion.getSelectionModel().getSelectedItem());
         spinneretArgs.selectTemplateVariant(minecraftVersions, (version, templateVariants) ->
         {
-            var yes = new ButtonType("Yes", ButtonData.LEFT);
-            var exit = new ButtonType("Exit", ButtonData.RIGHT);
-            var message = "No matching template variant for " + version.raw + ". Attempt to use the latest template?";
-            var alert = new Alert(AlertType.CONFIRMATION, message, yes, exit);
+            var yes = new ButtonType(I18n.get("dialog.yes"), ButtonData.LEFT);
+            var exit = new ButtonType(I18n.get("dialog.exit"), ButtonData.RIGHT);
+            var alert = new Alert(AlertType.CONFIRMATION,
+                I18n.get("templatePage.noMatch", version.raw), yes, exit);
             alert.showAndWait();
 
             ButtonType result = alert.getResult();

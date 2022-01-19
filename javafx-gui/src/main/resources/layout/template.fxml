@@ -7,13 +7,13 @@
 
 <VBox spacing="5" xmlns:fx="http://javafx.com/fxml">
 	<HBox spacing="5">
-		<Label text="Template"/>
+		<Label text="%templatePage.template"/>
 		<ComboBox fx:id="template" editable="true"/>
 	</HBox>
 	<HBox spacing="5">
-		<Label text="Minecraft version"/>
+		<Label text="%templatePage.mcVersion"/>
 		<ComboBox fx:id="minecraftVersion"/>
-		<Label text="Releases only"/>
+		<Label text="%templatePage.releasesOnly"/>
 		<CheckBox fx:id="releasesOnly"/>
 	</HBox>
 </VBox>
