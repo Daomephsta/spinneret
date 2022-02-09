@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import com.google.gson.GsonBuilder;
@@ -14,6 +19,7 @@ import com.google.gson.JsonObject;
 
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.util.Json;
+import daomephsta.spinneret.util.JsonBundleLoader;
 import daomephsta.spinneret.versioning.MinecraftVersion;
 import daomephsta.spinneret.versioning.MinecraftVersions;
 import daomephsta.spinneret.versioning.Range;
@@ -29,8 +35,20 @@ public class Template
         Filter.registerFilter(new PascalCaseFilter());
     }
 
-    public record Variant(Range<MinecraftVersion> minecraftRange, TemplateSource source)
+    public static class Variant
     {
+        private final Range<MinecraftVersion> minecraftRange;
+        public final Map<String, TemplateVariable> templateVariables;
+        private final TemplateSource source;
+
+        private Variant(Range<MinecraftVersion> minecraftRange, 
+            Map<String, TemplateVariable> templateVariables, TemplateSource source)
+        {
+            this.minecraftRange = minecraftRange;
+            this.templateVariables = templateVariables;
+            this.source = source;
+        }
+
         private boolean matches(MinecraftVersion minecraft)
         {
             return minecraftRange.contains(minecraft);
@@ -86,7 +104,21 @@ public class Template
     {
         var minecraftRange = Range.parse(minecraftVersions::get,
             Json.getAsString(json, "minecraft"));
-        return new Variant(minecraftRange,
-            JSON.getAs(json, "source", TemplateSource.class));
+        ResourceBundle translations = readTranslations(json);
+        Map<String, TemplateVariable> variables = json.has("variables") 
+            ? TemplateVariable.readVariables(Json.getAsObject(json, "variables"), 
+                key -> translations.containsKey(key) ? translations.getString(key) : key)
+            : Collections.emptyMap();
+        var source = JSON.getAs(json, "source", TemplateSource.class);      
+        return new Variant(minecraftRange, variables, source);
+    }
+
+    private static ResourceBundle readTranslations(JsonObject json)
+    {
+        var languages = Json.getAsObject(json, "languages");
+        String baseUrl = Json.getAsString(languages, "base-url");
+        Set<Locale> supports = JSON.getAsSet(languages, "supports", Locale.class);
+        var translations = JsonBundleLoader.load("lang", baseUrl, supports);
+        return translations;
     }
 }

@@ -6,36 +6,35 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.IntBinaryOperator;
+
 import daomephsta.spinneret.ModScope.RootPackage;
 import daomephsta.spinneret.template.Template;
+import daomephsta.spinneret.template.TemplateVariable;
 import daomephsta.spinneret.versioning.MinecraftVersion;
 import daomephsta.spinneret.versioning.MinecraftVersions;
-import liqp.parser.Inspectable;
 import liqp.parser.LiquidSupport;
 
 public class SpinneretArguments implements LiquidSupport
 {
-    static class TemplateScope implements Inspectable
-    {
-        public URL url;
-    }
-    private final TemplateScope template = new TemplateScope();
     private final ModScope mod = new ModScope();
+    public final Map<String, Object> templateValues = new HashMap<>();
+    private URL templateUrl = null;
     private Template.Variant selectedTemplateVariant = null;
 
     public SpinneretArguments template(String template) throws InvalidArgumentException
     {
-        this.template.url = Spinneret.configuration().getTemplateByAlias(template);
-        if (this.template.url == null)
+        templateUrl = Spinneret.configuration().getTemplateByAlias(template);
+        if (templateUrl == null)
         {
             try
             {
-                this.template.url = new URL(template);
+                templateUrl = new URL(template);
             }
             catch (MalformedURLException e)
             {
@@ -44,11 +43,6 @@ public class SpinneretArguments implements LiquidSupport
             }
         }
         return this;
-    }
-
-    public URL templateUrl()
-    {
-        return this.template.url;
     }
 
     public Template.Variant template()
@@ -87,7 +81,7 @@ public class SpinneretArguments implements LiquidSupport
     public SpinneretArguments selectTemplateVariant(MinecraftVersions minecraftVersions,
         BiFunction<MinecraftVersion, List<Template.Variant>, Template.Variant> defaultFactory)
     {
-        this.selectedTemplateVariant = Template.select(template.url, mod.minecraftVersion, minecraftVersions, defaultFactory);
+        this.selectedTemplateVariant = Template.select(templateUrl, mod.minecraftVersion, minecraftVersions, defaultFactory);
         return this;
     }
 
@@ -232,12 +226,18 @@ public class SpinneretArguments implements LiquidSupport
         this.mod.dependencies = dependencies;
         return this;
     }
+
+    public Map<String, TemplateVariable> getTemplateVariables()
+    {
+        return selectedTemplateVariant.templateVariables;
+    }
+    
     @Override
     public Map<String, Object> toLiquid()
     {
         return Map.of(
-            "template", template,
-            "mod", mod
+            "mod", mod,
+            "template", templateValues
         );
     }
 

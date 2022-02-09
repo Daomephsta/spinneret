@@ -7,7 +7,11 @@ import javafx.fxml.FXMLLoader;
 
 public class I18n
 {
-    private static final ResourceBundle STRINGS = ResourceBundle.getBundle("strings");
+    private static final ResourceBundle STRINGS;
+    static
+    {
+        STRINGS = ResourceBundle.getBundle("strings");
+    }
 
     public static String get(String key, Object... args)
     {

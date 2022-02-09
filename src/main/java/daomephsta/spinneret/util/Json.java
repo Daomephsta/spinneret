@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
@@ -48,10 +49,22 @@ public class Json
             throw new JsonSyntaxException("Missing member " + member);
         return json.get(member);
     }
+    
+    public static int getAsInt(JsonObject json, String member)
+    {
+        return asInt(get(json, member));
+    }
 
     public static String getAsString(JsonObject json, String member)
     {
         return asString(get(json, member));
+    }
+    
+    public static int asInt(JsonElement element)
+    {
+        if (element instanceof JsonPrimitive primitive && primitive.isNumber())
+            return primitive.getAsInt();
+        throw new JsonSyntaxException("Expected JSON integer, got " + element);
     }
 
     public static String asString(JsonElement element)
@@ -59,6 +72,21 @@ public class Json
         if (element.isJsonPrimitive())
             return element.getAsString();
         throw new JsonSyntaxException("Expected JSON string, got " +
+            element.getClass().getSimpleName());
+    }
+    
+    public static Object asPrimitive(JsonElement element)
+    {
+        if (element instanceof JsonPrimitive primitive)
+        {
+            if (primitive.isString())
+                return primitive.getAsString();
+            else if (primitive.isNumber())
+                return primitive.getAsNumber();
+            else if (primitive.isBoolean())
+                return primitive.getAsBoolean();
+        }
+        throw new JsonSyntaxException("Expected JSON primitive, got " +
             element.getClass().getSimpleName());
     }
 

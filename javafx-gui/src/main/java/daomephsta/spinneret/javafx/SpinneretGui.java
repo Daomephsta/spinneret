@@ -1,6 +1,7 @@
 package daomephsta.spinneret.javafx;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import daomephsta.spinneret.Spinneret;
@@ -30,7 +31,8 @@ public class SpinneretGui extends Application
     {
         this.spinneretArgs = new SpinneretArguments();
         this.pager = new WizardPager(spinneretArgs,
-            new TemplateSelectionPage(), new ModInfoPage(), new DependenciesPage(spinneretArgs));
+            new TemplateSelectionPage(), new ModInfoPage(), 
+            new TemplateVariablesPage(spinneretArgs), new DependenciesPage(spinneretArgs));
     }
 
     @Override
