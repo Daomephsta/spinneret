@@ -15,6 +15,9 @@ public class IntegrationTests
     @Test
     public void test()
     {
+        String testTemplate = System.getenv("SPINNERET_TEST_TEMPLATE");
+        if (testTemplate == null)
+            throw new AssertionError("Environment variable SPINNERET_TEST_TEMPLATE must be defined");
         try
         {
             var minecraftVersions = MinecraftVersions.load(
@@ -25,7 +28,7 @@ public class IntegrationTests
             String modId = ArgumentSuggestions.modId(modName);
             List<String> authors = List.of("Alice", "Bob");
             SpinneretArguments spinneretArgs = new SpinneretArguments()
-                .template("spinneret-java")
+                .template(testTemplate)
                 .minecraftVersion(latest)
                 .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
                 .modName(modName)
