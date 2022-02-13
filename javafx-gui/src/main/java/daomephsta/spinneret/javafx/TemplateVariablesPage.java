@@ -29,6 +29,12 @@ class TemplateVariablesPage extends WizardPage
     @Override
     protected void setupContent()
     {
+        if (spinneretArgs.getTemplateVariables().isEmpty())
+        {
+            templateVariables.add(new Label(I18n.get("variablesPage.noVariables")), 0, 0);
+            return;
+        }
+        
         int row = 0;
         for (TemplateVariable variable : spinneretArgs.getTemplateVariables().values())
         {

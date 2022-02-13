@@ -1,7 +1,6 @@
 package daomephsta.spinneret.javafx;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.stream.Stream;
 
 import daomephsta.spinneret.Spinneret;
