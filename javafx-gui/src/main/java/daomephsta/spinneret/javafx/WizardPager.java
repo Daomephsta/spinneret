@@ -1,11 +1,8 @@
 package daomephsta.spinneret.javafx;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.TreeMap;
 
 import daomephsta.spinneret.SpinneretArguments;
@@ -137,17 +134,7 @@ public class WizardPager
             var fxml = new FXMLLoader();
             fxml.setController(this);
             I18n.configureFxml(fxml);
-            var layoutPath = "/layout/" + name + ".fxml";
-            try
-            {
-                InputStream layout = getClass().getResourceAsStream(layoutPath);
-                Objects.requireNonNull(layout, "Missing " + layoutPath);
-                return fxml.load(layout);
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException("Failed to load layout " + layoutPath, e);
-            }
+            return FxmlHelper.loadLayout(fxml, name);
         }
 
         protected void setupContent() {}

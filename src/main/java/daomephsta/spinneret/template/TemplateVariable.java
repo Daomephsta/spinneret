@@ -25,7 +25,11 @@ public class TemplateVariable
 {
     private static final Json JSON = new Json(new Gson());
     public final String name, display, tooltip;
-    public enum Type {STRING, NUMBER, BOOLEAN, STRING_ARRAY, NUMBER_ARRAY, BOOLEAN_ARRAY}
+    public sealed interface Type
+    {
+        public enum Primitive implements Type {STRING, NUMBER, BOOLEAN}
+        public record Array(Type.Primitive elementType) implements Type {}
+    }
     public final Type type;
     public final Predicate<Object> condition;
     public final Set<String> defaults;
@@ -42,22 +46,31 @@ public class TemplateVariable
     }
 
     public static Map<String, TemplateVariable> readVariables(JsonObject variablesJson, UnaryOperator<String> translations)
-    {
+    {   
         return variablesJson.entrySet().stream().collect(toMap(Entry::getKey, e -> 
             {
                 var json = Json.asObject(e.getValue());
                 var type = readType(json);
+
+                Predicate<Object> condition;
+                if (type instanceof Type.Primitive primitive)
+                    condition = readCondition(primitive, json);
+                else if (type instanceof Type.Array array)
+                    condition = readArrayConditions(json, array.elementType);
+                else
+                    throw new IllegalStateException("Unexpected type " + type);
+                
                 Set<String> defaults = json.has("values") 
                     ? JSON.getAsSet(json, "values", String.class)
-                    : Collections.emptySet(); 
+                    : Collections.emptySet();
                 return new TemplateVariable(e.getKey(),
                     translations.apply(e.getKey() + ".display"),
                     translations.apply(e.getKey() + ".tooltip"),
-                    type, readCondition(type, json), defaults);
+                    type, condition, defaults);
             }));
     }
 
-    private static Predicate<Object> readCondition(Type type, JsonObject json)
+    private static Predicate<Object> readCondition(Type.Primitive type, JsonObject json)
     {
         return switch (type)
         {
@@ -82,14 +95,11 @@ public class TemplateVariable
             yield number -> true;
         }
         case BOOLEAN -> bool -> true;
-        case STRING_ARRAY -> readArrayConditions(json, Type.STRING);
-        case NUMBER_ARRAY -> readArrayConditions(json, Type.NUMBER);
-        case BOOLEAN_ARRAY -> readArrayConditions(json, Type.BOOLEAN);
         };
     }
     
     @SuppressWarnings("unchecked")
-    private static Predicate<Object> readArrayConditions(JsonObject json, Type elementType)
+    private static Predicate<Object> readArrayConditions(JsonObject json, Type.Primitive elementType)
     {
         Predicate<Object> conditions = array -> true;
         if (json.has("size"))
@@ -128,7 +138,12 @@ public class TemplateVariable
         var type = Json.getAsString(json, "type");
         try
         {
-            return Type.valueOf(type.toUpperCase(Locale.ROOT));
+            if (type.endsWith("_array"))
+            {
+                String elementType = type.substring(0, type.length() - "_array".length());
+                return new Type.Array(Type.Primitive.valueOf(elementType.toUpperCase(Locale.ROOT)));
+            }
+            return Type.Primitive.valueOf(type.toUpperCase(Locale.ROOT));
         }
         catch (IllegalArgumentException e)
         {

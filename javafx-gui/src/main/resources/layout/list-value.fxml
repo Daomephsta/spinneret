@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml">
+	<top>
+		<HBox fx:id="controls">
+			<Button text="+" fx:id="add" onAction="#handleButtons"/>
+			<Button text="-" fx:id="remove" onAction="#handleButtons"/>
+			<Button text="↑" fx:id="moveUp" onAction="#handleButtons"/>
+			<Button text="↓" fx:id="moveDown" onAction="#handleButtons"/>
+		</HBox>
+	</top>
+	<center>
+		<ListView fx:id="values"/>
+	</center>
+</BorderPane>
