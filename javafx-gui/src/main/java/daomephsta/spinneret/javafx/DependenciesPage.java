@@ -113,8 +113,11 @@ class DependenciesPage extends WizardPage
     public void apply(SpinneretArguments spinneretArgs) throws InvalidArgumentException
     {
         var problems = new ArrayList<String>();
-        if (yarnVersion.getItems().isEmpty() || fabricLoaderVersion.getItems().isEmpty() || fabricApiVersion.getItems().isEmpty())
+        if (yarnVersion.getItems().isEmpty() || fabricLoaderVersion.getItems().isEmpty() ||
+            (useFabricApi.isSelected() && fabricApiVersion.getItems().isEmpty()))
+        {
             problems.add(I18n.get("dependenciesPage.waitForVersions"));
+        }
 
         var dependencies = new HashMap<String, Object>();
         dependencies.put("mappings", yarnVersion.getSelectionModel().getSelectedItem());
