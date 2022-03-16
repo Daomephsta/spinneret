@@ -75,10 +75,7 @@ public class CopyOperation
                         destinationFile = destinationFile.substring(0, destinationFile.length() - ".liquid".length());
                         destination = destination.getParent().resolve(destinationFile);
                     }
-                    var template = parseFile(file);
-                    content = new ByteArrayInputStream(template
-                        .withRenderSettings(STRICT_RENDERING)
-                        .render(spinneretArgs)
+                    content = new ByteArrayInputStream(renderFile(spinneretArgs, file)
                         .getBytes(StandardCharsets.UTF_8));
                 }
                 else
@@ -118,15 +115,19 @@ public class CopyOperation
         }
     }
 
-    private Template parseFile(Path file) throws IOException
+    private String renderFile(SpinneretArguments spinneretArgs, Path file) throws IOException
     {
+        String stage = "parse";
         try
         {
-            return liqp.Template.parse(Files.newInputStream(file));
+            liqp.Template template = liqp.Template.parse(Files.newInputStream(file))
+                .withRenderSettings(STRICT_RENDERING);
+            stage = "render";
+            return template.render(spinneretArgs);
         }
-        catch (LiquidException e)
+        catch (Exception e)
         {
-            System.err.println("Failed to parse " + file);
+            System.err.println("Failed to " + stage + " " + file);
             throw e;
         }
     }
