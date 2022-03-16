@@ -116,12 +116,12 @@ class DependenciesPage extends WizardPage
         if (yarnVersion.getItems().isEmpty() || fabricLoaderVersion.getItems().isEmpty() || fabricApiVersion.getItems().isEmpty())
             problems.add(I18n.get("dependenciesPage.waitForVersions"));
 
-        var dependencies = new HashMap<String, String>();
+        var dependencies = new HashMap<String, Object>();
         dependencies.put("mappings", yarnVersion.getSelectionModel().getSelectedItem());
         dependencies.put("fabricLoader", fabricLoaderVersion.getSelectionModel().getSelectedItem());
         dependencies.put("fabricApi", useFabricApi.isSelected()
             ? fabricApiVersion.getSelectionModel().getSelectedItem().versionNumber()
-            : null);
+            : false);
         spinneretArgs.dependencies(dependencies);
 
         if (!problems.isEmpty())

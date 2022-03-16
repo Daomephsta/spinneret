@@ -3,7 +3,6 @@ package daomephsta.spinneret.javafx;
 import java.util.function.Consumer;
 
 import daomephsta.spinneret.SpinneretArguments;
-import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 import daomephsta.spinneret.javafx.WizardPager.WizardPage;
 import daomephsta.spinneret.template.TemplateVariable;
 import daomephsta.spinneret.template.TemplateVariable.Type;
@@ -108,13 +107,6 @@ class TemplateVariablesPage extends WizardPage
            templateVariables.add(valueControl, 1, row);
            row += 1;
         }
-    }
-    
-    @Override
-    void apply(SpinneretArguments spinneretArgs) throws InvalidArgumentException
-    {
-        System.out.println(spinneretArgs.templateValues.getClass().getSimpleName() + " " +
-            spinneretArgs.templateValues);
     }
 
     private Control createValueControl(TemplateVariable variable, Consumer<Property<?>> binding)

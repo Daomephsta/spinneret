@@ -19,7 +19,7 @@ class ModScope implements LiquidSupport
     public String description;
     public ModScope.RootPackage rootPackage;
     public String folderName;
-    public Map<String, String> dependencies;
+    public Map<String, Object> dependencies;
 
     @Override
     public Map<String, Object> toLiquid()

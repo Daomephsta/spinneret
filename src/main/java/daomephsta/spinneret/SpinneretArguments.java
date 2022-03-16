@@ -221,7 +221,7 @@ public class SpinneretArguments implements LiquidSupport
         return this;
     }
 
-    public SpinneretArguments dependencies(Map<String, String> dependencies)
+    public SpinneretArguments dependencies(Map<String, Object> dependencies)
     {
         this.mod.dependencies = dependencies;
         return this;
@@ -231,7 +231,7 @@ public class SpinneretArguments implements LiquidSupport
     {
         return selectedTemplateVariant.templateVariables;
     }
-    
+
     @Override
     public Map<String, Object> toLiquid()
     {
