@@ -1,23 +1,26 @@
 package daomephsta.spinneret;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class Spinneret
 {
-    private static Config configuration = null;
+    public final Config configuration;
+    public final FabricMeta fabricMeta;
 
-    public static void spin(SpinneretArguments args) throws IOException
+    public Spinneret(Path configFolder)
     {
-        args.template().generate(args);
+        this.configuration = Config.load(configFolder);
+        this.fabricMeta = new FabricMeta(configuration);
     }
 
-    public static Config configuration()
+    public SpinneretArguments createArguments()
     {
-        if (configuration == null)
-        {
-            System.out.println("Loading configuration");
-            configuration = Config.load();
-        }
-        return configuration;
+        return new SpinneretArguments(this);
+    }
+
+    public void spin(SpinneretArguments args) throws IOException
+    {
+        args.template().generate(args);
     }
 }

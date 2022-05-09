@@ -1,7 +1,9 @@
 package daomephsta.spinneret;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.Test;
@@ -10,11 +12,13 @@ import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 
 public class ArgumentTests
 {
+    private Spinneret spinneret = new Spinneret(Paths.get("."));
+
     @Test
     public void minimumModIDLength()
     {
         var error = assertThrows(InvalidArgumentException.class,
-            () -> new SpinneretArguments().modId(""));
+            () -> spinneret.createArguments().modId(""));
         assertTrue(error.problems.contains(
             "Minimum mod ID length is 1 character"));
     }
@@ -29,7 +33,7 @@ public class ArgumentTests
             tooLong.append((char) ('a' + random.nextInt('z' - 'a' + 1)));
         }
         var error = assertThrows(InvalidArgumentException.class,
-            () -> new SpinneretArguments().modId(tooLong.toString()));
+            () -> spinneret.createArguments().modId(tooLong.toString()));
         assertTrue(error.problems.contains(
             "Maximum mod ID length is 64 characters"));
     }
@@ -38,7 +42,7 @@ public class ArgumentTests
     public void invalidModIDStartCharacter()
     {
         var error = assertThrows(InvalidArgumentException.class,
-            () -> new SpinneretArguments().modId("42istheanswer"));
+            () -> spinneret.createArguments().modId("42istheanswer"));
         assertTrue(error.problems.contains("Start of mod ID must be a-z"));
     }
 
@@ -46,7 +50,7 @@ public class ArgumentTests
     public void invalidModIDCharacter()
     {
         var error = assertThrows(InvalidArgumentException.class,
-            () -> new SpinneretArguments().modId("tèst1"));
+            () -> spinneret.createArguments().modId("tèst1"));
         assertTrue(error.problems.contains("Invalid character at index 1. "
             + "Non-start mod ID characters must be a-z, 0-9, -, or _"));
     }

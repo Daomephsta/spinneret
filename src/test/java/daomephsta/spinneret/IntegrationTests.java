@@ -15,6 +15,7 @@ public class IntegrationTests
     @Test
     public void test()
     {
+        Spinneret spinneret = new Spinneret(Paths.get("."));
         String testTemplate = System.getenv("SPINNERET_TEST_TEMPLATE");
         if (testTemplate == null)
             throw new AssertionError("Environment variable SPINNERET_TEST_TEMPLATE must be defined");
@@ -22,12 +23,12 @@ public class IntegrationTests
         {
             var minecraftVersions = MinecraftVersions.load(
                 Paths.get("minecraft_versions.json"),
-                Spinneret.configuration().urls().minecraftVersions).join();
+                spinneret.configuration.urls().minecraftVersions).join();
             var latest = minecraftVersions.getLatest();
             String modName = "Test Mod";
             String modId = ArgumentSuggestions.modId(modName);
             List<String> authors = List.of("Alice", "Bob");
-            SpinneretArguments spinneretArgs = new SpinneretArguments()
+            SpinneretArguments spinneretArgs = spinneret.createArguments()
                 .template(testTemplate)
                 .minecraftVersion(latest)
                 .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
@@ -42,7 +43,7 @@ public class IntegrationTests
                     "mappings", "dummy",
                     "fabricLoader", "dummy",
                     "fabricApi", "dummy"));
-            Spinneret.spin(spinneretArgs.selectTemplateVariant(minecraftVersions,
+            spinneret.spin(spinneretArgs.selectTemplateVariant(minecraftVersions,
                 (mcVersion, templates) -> {throw new IllegalStateException("No matching template");}));
         }
         catch (IOException | InvalidArgumentException e)

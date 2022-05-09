@@ -24,20 +24,26 @@ public class FabricMeta
 {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static final Json JSON = new Json(new Gson());
+    private final Config config;
 
-    public static CompletableFuture<Collection<String>>
+    FabricMeta(Config config)
+    {
+        this.config = config;
+    }
+
+    public CompletableFuture<Collection<String>>
         getYarnVersionsFor(MinecraftVersion version)
     {
-        return getVersions(Spinneret.configuration().urls().yarnVersionsFor(version),
+        return getVersions(config.urls().yarnVersionsFor(version),
             reader -> JSON.streamAs(JSON.readArray(reader), JsonObject.class)
                 .map(e -> Json.getAsString(e, "version"))
                 .toList());
     }
 
-    public static CompletableFuture<Collection<String>>
+    public CompletableFuture<Collection<String>>
         getFabricLoaderVersionsFor(MinecraftVersion version)
     {
-        return getVersions(Spinneret.configuration().urls().fabricLoaderVersionsFor(version),
+        return getVersions(config.urls().fabricLoaderVersionsFor(version),
             reader -> JSON.streamAs(JSON.readArray(reader), JsonObject.class)
                 .map(e -> Json.getAsString(Json.getAsObject(e, "loader"), "version"))
                 .toList());
@@ -45,9 +51,9 @@ public class FabricMeta
 
     public record FabricApiVersionData(String versionNumber, Set<String> gameVersions) {}
 
-    public static CompletableFuture<Collection<FabricApiVersionData>> getFabricApiVersions()
+    public CompletableFuture<Collection<FabricApiVersionData>> getFabricApiVersions()
     {
-        return getVersions(Spinneret.configuration().urls().fabricApiVersions,
+        return getVersions(config.urls().fabricApiVersions,
             reader -> JSON.streamAs(JSON.readArray(reader), JsonObject.class)
                 .map(e -> new FabricApiVersionData(
                     Json.getAsString(e, "version_number"),

@@ -9,7 +9,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
@@ -78,11 +77,11 @@ public class Config
     private Urls urls;
     private Map<String, URL> templateAliases;
 
-    public static Config load()
+    public static Config load(Path configFolder)
     {
         try
         {
-            Path config = Paths.get("spinneret.json");
+            Path config = configFolder.resolve("spinneret.json");
             if (!Files.exists(config))
             {
                 try (InputStream configStream = Config.class.getResourceAsStream("/spinneret.json"))

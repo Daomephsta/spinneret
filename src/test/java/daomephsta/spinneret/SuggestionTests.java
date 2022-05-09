@@ -15,6 +15,8 @@ import daomephsta.spinneret.versioning.MinecraftVersions;
 
 public class SuggestionTests
 {
+    private Spinneret spinneret = new Spinneret(Paths.get("."));
+
     private static String[] modNames()
     {
         return new String[] {"  ", "Tèst Mod", "T̷̿̆ë̵͌s̵̽̑t̸́͘ ̵̾̈Ṃ̵̊ò̶͝d̸̽̎", "Tɘƨt Mob",
@@ -28,7 +30,7 @@ public class SuggestionTests
         String suggestion = ArgumentSuggestions.modId(modName);
         if (suggestion != null)
         {
-            var args = new SpinneretArguments();
+            var args = spinneret.createArguments();
             // Will throw if suggestion is invalid
             args.modId(suggestion);
         }
@@ -41,7 +43,7 @@ public class SuggestionTests
         String suggestion = ArgumentSuggestions.folderName(modName);
         if (suggestion != null)
         {
-            var args = new SpinneretArguments();
+            var args = spinneret.createArguments();
             // Will throw if suggestion is invalid
             args.folderName(suggestion);
         }
@@ -68,7 +70,7 @@ public class SuggestionTests
         String suggestion = ArgumentSuggestions.rootPackageName(ArgumentSuggestions.modId(modId), authors);
         if (suggestion != null)
         {
-            var args = new SpinneretArguments();
+            var args = spinneret.createArguments();
             // Will throw if suggestion is invalid
             args.rootPackageName(suggestion);
         }
@@ -89,9 +91,10 @@ public class SuggestionTests
     })
     public void suggestCompatibleMinecraftVersions(String minecraftVersion, String expected)
     {
+        Spinneret spinneret = new Spinneret(Paths.get("."));
         var minecraftVersions = MinecraftVersions.load(
             Paths.get("minecraft_versions.json"),
-            Spinneret.configuration().urls().minecraftVersions).join();
+            spinneret.configuration.urls().minecraftVersions).join();
         Assertions.assertEquals(expected, ArgumentSuggestions.compatibleMinecraftVersions(
             minecraftVersions.get(minecraftVersion)));
     }

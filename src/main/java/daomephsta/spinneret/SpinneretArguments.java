@@ -22,14 +22,20 @@ import liqp.parser.LiquidSupport;
 
 public class SpinneretArguments implements LiquidSupport
 {
+    private final Spinneret spinneret;
     private final ModScope mod = new ModScope();
     public final Map<String, Object> templateValues = new HashMap<>();
     private URL templateUrl = null;
     private Template.Variant selectedTemplateVariant = null;
 
+    SpinneretArguments(Spinneret spinneret)
+    {
+        this.spinneret = spinneret;
+    }
+
     public SpinneretArguments template(String template) throws InvalidArgumentException
     {
-        templateUrl = Spinneret.configuration().getTemplateByAlias(template);
+        templateUrl = spinneret.configuration.getTemplateByAlias(template);
         if (templateUrl == null)
         {
             try
