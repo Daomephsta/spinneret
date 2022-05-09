@@ -20,5 +20,8 @@ test {
             environment parts[0].trim(), parts[1].trim()
         }
     }
+    // Create /test_run if it doesn't exist
+    file('test_run').mkdir()
+    workingDir 'test_run'
     useJUnitPlatform() 
 }

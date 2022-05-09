@@ -9,4 +9,5 @@ build
 bin
 run
 
-tests.env
+tests.env
+test_run
