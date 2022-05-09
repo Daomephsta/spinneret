@@ -24,14 +24,14 @@ public class IntegrationTests
             var minecraftVersions = MinecraftVersions.load(
                 Paths.get("minecraft_versions.json"),
                 spinneret.configuration.urls().minecraftVersions).join();
-            var latest = minecraftVersions.getLatest();
+            var mc1_18_1 = minecraftVersions.get("1.18.1");
             String modName = "Test Mod";
             String modId = ArgumentSuggestions.modId(modName);
             List<String> authors = List.of("Alice", "Bob");
             SpinneretArguments spinneretArgs = spinneret.createArguments()
                 .template(testTemplate)
-                .minecraftVersion(latest)
-                .compatibleMinecraftVersions(latest.major + "." + latest.minor + ".x")
+                .minecraftVersion(mc1_18_1)
+                .compatibleMinecraftVersions(mc1_18_1.major + "." + mc1_18_1.minor + ".x")
                 .modName(modName)
                 .modId(modId)
                 .authors(authors)

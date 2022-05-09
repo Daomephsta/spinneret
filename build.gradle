@@ -14,5 +14,11 @@ dependencies {
 }
 
 test {
+    if (file('tests.env').exists()) {
+        file('tests.env').eachLine { line ->
+            def parts = line.split('=')
+            environment parts[0].trim(), parts[1].trim()
+        }
+    }
     useJUnitPlatform() 
 }
