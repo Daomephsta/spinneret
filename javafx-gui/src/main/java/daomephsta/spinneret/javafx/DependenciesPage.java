@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 import daomephsta.spinneret.FabricMeta;
 import daomephsta.spinneret.FabricMeta.FabricApiVersionData;
-import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 import daomephsta.spinneret.javafx.WizardPager.WizardPage;
@@ -46,9 +45,9 @@ class DependenciesPage extends WizardPage
     protected void setupContent()
     {
         setupVersionCombo(yarnVersion,
-            FabricMeta.getYarnVersionsFor(spinneretArgs.minecraftVersion()));
+            SpinneretGui.backEnd().fabricMeta.getYarnVersionsFor(spinneretArgs.minecraftVersion()));
         setupVersionCombo(fabricLoaderVersion,
-            FabricMeta.getFabricLoaderVersionsFor(spinneretArgs.minecraftVersion()));
+            SpinneretGui.backEnd().fabricMeta.getFabricLoaderVersionsFor(spinneretArgs.minecraftVersion()));
         setupFabricApiVersion();
 
         useFabricApi.setOnAction(e -> fabricApiVersion.setDisable(!useFabricApi.isSelected()));
@@ -57,7 +56,7 @@ class DependenciesPage extends WizardPage
         {
             try
             {
-                Desktop.getDesktop().browse(Spinneret.configuration().urls().fabricApiCurseForge);
+                Desktop.getDesktop().browse(SpinneretGui.backEnd().configuration.urls().fabricApiCurseForge);
             }
             catch (IOException ex)
             {
@@ -81,7 +80,7 @@ class DependenciesPage extends WizardPage
     private void setupFabricApiVersion()
     {
         fabricApiVersion.setPromptText(I18n.get("wizard.loading"));
-        FabricMeta.getFabricApiVersions().thenAcceptAsync(versions ->
+        SpinneretGui.backEnd().fabricMeta.getFabricApiVersions().thenAcceptAsync(versions ->
         {
             fabricApiVersion.getItems().addAll(versions);
             // Decorate versions matching the selected minecraft version with stars

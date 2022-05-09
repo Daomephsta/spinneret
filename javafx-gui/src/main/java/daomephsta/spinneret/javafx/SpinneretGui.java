@@ -1,6 +1,7 @@
 package daomephsta.spinneret.javafx;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import daomephsta.spinneret.Spinneret;
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 
 public class SpinneretGui extends Application
 {
+    private static Spinneret backEnd;
     private final SpinneretArguments spinneretArgs;
     private final WizardPager pager;
     @FXML
@@ -28,9 +30,9 @@ public class SpinneretGui extends Application
 
     public SpinneretGui()
     {
-        this.spinneretArgs = new SpinneretArguments();
+        this.spinneretArgs = backEnd.createArguments();
         this.pager = new WizardPager(spinneretArgs,
-            new TemplateSelectionPage(), new ModInfoPage(), 
+            new TemplateSelectionPage(), new ModInfoPage(),
             new TemplateVariablesPage(spinneretArgs), new DependenciesPage(spinneretArgs));
     }
 
@@ -88,7 +90,7 @@ public class SpinneretGui extends Application
             return;
         try
         {
-            Spinneret.spin(spinneretArgs);
+            backEnd.spin(spinneretArgs);
         }
         catch (IOException e)
         {
@@ -98,8 +100,14 @@ public class SpinneretGui extends Application
         Platform.exit();
     }
 
+    public static Spinneret backEnd()
+    {
+        return backEnd;
+    }
+
     public static void main(String[] args)
     {
+        backEnd = new Spinneret(Paths.get("."));
         launch(args);
     }
 }

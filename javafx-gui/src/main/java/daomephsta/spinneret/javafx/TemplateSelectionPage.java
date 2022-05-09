@@ -3,7 +3,6 @@ package daomephsta.spinneret.javafx;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import daomephsta.spinneret.Spinneret;
 import daomephsta.spinneret.SpinneretArguments;
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 import daomephsta.spinneret.javafx.WizardPager.WizardPage;
@@ -40,12 +39,12 @@ class TemplateSelectionPage extends WizardPage
     @FXML
     private void initialize()
     {
-        template.getItems().addAll(Spinneret.configuration().getTemplateAliases());
+        template.getItems().addAll(SpinneretGui.backEnd().configuration.getTemplateAliases());
         template.getSelectionModel().selectFirst();
 
         minecraftVersion.setPromptText(I18n.get("wizard.loading"));
         MinecraftVersions.load(Paths.get("minecraft_versions.json"),
-                Spinneret.configuration().urls().minecraftVersions)
+                SpinneretGui.backEnd().configuration.urls().minecraftVersions)
             .thenAcceptAsync(minecraftVersions ->
             {
                 MinecraftVersion mc114 = minecraftVersions.get("1.14");
