@@ -1,0 +1,16 @@
+This file lists assets and code distributed under different licenses from the rest of the project.
+
+The following packages consist entirely of code and assets created by others. 
+These packages are present only in the all/fat/shadow JAR distribution.
+
+com.fasterxml.jackson.annotation
+	Licensed under the Apache 2.0 License (META-INF/apache-2.0.txt)
+
+com.fasterxml.jackson.core
+	Licensed under the Apache 2.0 License (META-INF/apache-2.0.txt)
+
+com.fasterxml.jackson.databind
+	Licensed under the Apache 2.0 License (META-INF/apache-2.0.txt)
+
+com.fasterxml.jackson.datatype
+	Licensed under the Apache 2.0 License (META-INF/apache-2.0.txt)

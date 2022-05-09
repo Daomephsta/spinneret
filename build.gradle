@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 version = '0.0.1'
@@ -26,4 +27,39 @@ test {
     file('test_run').mkdir()
     workingDir 'test_run'
     useJUnitPlatform() 
+}
+
+jar {
+    from 'LICENSE.md'
+}
+
+import org.apache.commons.io.FilenameUtils
+
+task gatherLicenses(type: Copy) {
+    for (dep in sourceSets.main.runtimeClasspath.filter {FilenameUtils.getExtension(it.name) == 'jar'}) {
+        from(zipTree(dep)) {
+            include 'META-INF/LICENSE', 'META-INF/NOTICE' 
+            def name = dep.name
+            rename {"${FilenameUtils.removeExtension(name)}_${it}"}
+        }
+    }
+    from('licenses') {
+        into 'META-INF'
+    }
+    into "${buildDir}/licenses"
+}
+
+shadowJar {
+    dependsOn gatherLicenses
+    // Include dependency licenses
+    from "${buildDir}/licenses"
+    // Exclude unnecessary/duplicate META-INF content from dependencies
+    exclude 'META-INF/maven/**',
+        'META-INF/CHANGES',
+        'META-INF/LICENSE',
+        'META-INF/MANIFEST.MF',
+        'META-INF/NOTICE',
+        'META-INF/README.md'
+    from('LICENSE.md', 'NOTICE.txt')
+    minimize()
 }
