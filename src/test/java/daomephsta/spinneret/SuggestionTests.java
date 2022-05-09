@@ -2,14 +2,16 @@ package daomephsta.spinneret;
 
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ArgumentConverter;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import daomephsta.spinneret.SpinneretArguments.InvalidArgumentException;
 import daomephsta.spinneret.versioning.MinecraftVersions;
 
@@ -17,14 +19,8 @@ public class SuggestionTests
 {
     private Spinneret spinneret = new Spinneret(Paths.get("."));
 
-    private static String[] modNames()
-    {
-        return new String[] {"  ", "Tèst Mod", "T̷̿̆ë̵͌s̵̽̑t̸́͘ ̵̾̈Ṃ̵̊ò̶͝d̸̽̎", "Tɘƨt Mob",
-            "Τеѕт Mοd", "test\u202Emod", "テストモヂゥ", "test😀mod"};
-    }
-
     @ParameterizedTest(name = "With mod name {0}")
-    @MethodSource("modNames")
+    @CsvFileSource(resources = "/mod_names.csv")
     public void suggestModId(String modName) throws InvalidArgumentException
     {
         String suggestion = ArgumentSuggestions.modId(modName);
@@ -37,7 +33,7 @@ public class SuggestionTests
     }
 
     @ParameterizedTest(name = "With mod name {0}")
-    @MethodSource("modNames")
+    @CsvFileSource(resources = "/mod_names.csv")
     public void suggestFolderName(String modName) throws InvalidArgumentException
     {
         String suggestion = ArgumentSuggestions.folderName(modName);
@@ -49,22 +45,23 @@ public class SuggestionTests
         }
     }
 
-    private static Stream<Arguments> suggestRootPackageNameArgs()
+    private static class AuthorsConverter implements ArgumentConverter
     {
-        return Stream.of(
-            Arguments.of("blank", List.of("    ")),
-            Arguments.of("test_mod", List.of("Alice", "Bob")),
-            Arguments.of("hello-fabric", List.of("Charliè")),
-            Arguments.of("mod-ja", List.of("たろう", "はなこ")),
-            Arguments.of("zalgo", List.of("̴̜̚B̸̲̌ô̸̲B̸̲̌ô̸̲b̶̞̒b̶̞̒")),
-            Arguments.of("smiley", List.of("😀liver")),
-            Arguments.of("test-mod", List.of("1lorem-ipsum_DOLOR"))
-        );
+        private static final Pattern SPLITTER = Pattern.compile(",\\s?");
+
+        @Override
+        public Object convert(Object source, ParameterContext context) throws ArgumentConversionException
+        {
+            if (source instanceof String argument)
+                return SPLITTER.splitAsStream(argument).toList();
+            else
+                throw new ArgumentConversionException("Expected string as conversion input");
+        }
     }
 
-    @ParameterizedTest(name = "With mod id {0}, authors {1}")
-    @MethodSource("suggestRootPackageNameArgs")
-    public void suggestRootPackageName(String modId, List<String> authors)
+    @ParameterizedTest(name = "With mod id {0}, authors [{1}]")
+    @CsvFileSource(resources = "/suggestRootPackageName_args.csv")
+    public void suggestRootPackageName(String modId, @ConvertWith(AuthorsConverter.class) List<String> authors)
         throws InvalidArgumentException
     {
         String suggestion = ArgumentSuggestions.rootPackageName(ArgumentSuggestions.modId(modId), authors);

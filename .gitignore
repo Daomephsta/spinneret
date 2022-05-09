@@ -8,6 +8,5 @@ build
 .project
 bin
 run
-test
 
-tests.env
+tests.env
